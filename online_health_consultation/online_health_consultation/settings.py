@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'OHC_System',  # Custom app for the online health consultation system
     'crispy_forms',
     'crispy_bootstrap5',
+    'widget_tweaks',
 ]
 #CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 #CRISPY_TEMPLATE_PACK='bootstrap4'
