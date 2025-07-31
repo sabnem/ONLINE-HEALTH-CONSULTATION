@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-success">
+        Welcome, {{ user.username }}! You are now logged in.
+    </div>
+    <p>This is your dashboard where you can manage consultations and profile.</p>
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+</div>
+{% endblock %}

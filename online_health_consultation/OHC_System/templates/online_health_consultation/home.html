@@ -1,0 +1,19 @@
+{% extends "online_health_consultation/Base.html" %}
+
+{% block title %}Home - Online Health Consultation{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>Welcome to the Online Health Consultation System</h2>
+    <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+        Book appointments, consult with licensed doctors, and manage your medical records—all from the comfort of your home.
+    </p>
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'consult' %}" style="background-color: #2e7d32; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; margin: 0.5rem; display: inline-block;">Consult a Doctor</a>
+        <a href="{% url 'appointments' %}" style="background-color: #66bb6a; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; margin: 0.5rem; display: inline-block;">View Appointments</a>
+    </div>
+
+</div>
+{% endblock %}
+    
