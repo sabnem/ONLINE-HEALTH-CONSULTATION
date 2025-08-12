@@ -76,19 +76,67 @@ def user_logout(request):
 
 @login_required
 def dashboard(request):
-    """User dashboard showing overview of appointments, prescriptions, etc."""
+    """Render the user's dashboard with all relevant information."""
+    user = request.user
+    is_doctor = user.profile.is_doctor
+
+    # Get appointments queryset
+    if is_doctor:
+        appointments = Appointment.objects.filter(
+            doctor__user=user,
+            status__in=['Scheduled', 'Confirmed']
+        ).order_by('datetime')
+        appointments_count = appointments.count()
+        upcoming_appointments = appointments[:5]
+        consultations_count = appointments.filter(appointment_type='Consultation').count()
+    else:
+        appointments = Appointment.objects.filter(
+            user=user,
+            status__in=['Scheduled', 'Confirmed']
+        ).order_by('datetime')
+        appointments_count = appointments.count()
+        upcoming_appointments = appointments[:5]
+        consultations_count = appointments.filter(appointment_type='Consultation').count()
+
+    # Get other counts
+    records_count = MedicalRecord.objects.filter(user=user).count()
+    prescriptions_count = Prescription.objects.filter(user=user).count()
+
+    # Get recent articles
+    recent_articles = HealthArticle.objects.order_by('-created_at')[:3] if HealthArticle.objects.exists() else []
+
+    # Get recent activities
+    activities = []  # Placeholder for activity feed
+
     context = {
-        'upcoming_appointments': Appointment.objects.filter(user=request.user, status='scheduled')[:5],
-        'recent_prescriptions': Prescription.objects.filter(user=request.user)[:5],
-        'medical_records': MedicalRecord.objects.filter(user=request.user)[:5]
+        'upcoming_appointments': upcoming_appointments,
+        'appointments_count': appointments_count,
+        'consultations_count': consultations_count,
+        'records_count': records_count,
+        'prescriptions_count': prescriptions_count,
+        'recent_articles': recent_articles,
+        'activities': activities,
     }
+
     return render(request, 'online_health_consultation/dashboard.html', context)
 
 # Consultation & Appointments
 @login_required
-def consult(request):
-    """Handle doctor consultation requests."""
-    return render(request, 'online_health_consultation/consult.html')
+def book_consultation(request):
+    """Handle booking new consultations."""
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.user = request.user
+            appointment.appointment_type = 'Consultation'
+            appointment.save()
+            messages.success(request, 'Consultation booked successfully!')
+            return redirect('dashboard')
+    else:
+        form = AppointmentForm()
+    
+    return render(request, 'online_health_consultation/book_consultation.html', {'form': form})
 
 @login_required
 def appointments(request):

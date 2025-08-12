@@ -28,24 +28,43 @@ class Doctor(models.Model):
         return f"Dr. {self.user.get_full_name()}"
 
 class Appointment(models.Model):
+    APPOINTMENT_TYPE_CHOICES = [
+        ('Consultation', 'Consultation'),
+        ('Follow-up', 'Follow-up'),
+        ('Test', 'Test'),
+        ('Procedure', 'Procedure')
+    ]
+    
     STATUS_CHOICES = [
-        ('scheduled', 'Scheduled'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
-        ('no_show', 'No Show'),
+        ('Scheduled', 'Scheduled'),
+        ('Confirmed', 'Confirmed'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+        ('No-show', 'No-show')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='patient_appointments')
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    date = models.DateField()
-    time = models.TimeField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
-    symptoms = models.TextField()
+    datetime = models.DateTimeField(null=True, blank=True)
+    appointment_type = models.CharField(
+        max_length=20,
+        choices=APPOINTMENT_TYPE_CHOICES,
+        default='Consultation'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Scheduled'
+    )
+    symptoms = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-date', '-time']
+        ordering = ['-datetime']
+
+    def __str__(self):
+        return f"{self.appointment_type} with Dr. {self.doctor} on {self.datetime}"
 
 class Question(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE)

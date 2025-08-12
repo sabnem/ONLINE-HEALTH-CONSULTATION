@@ -23,11 +23,12 @@ class ProfileUpdateForm(forms.ModelForm):
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['doctor', 'date', 'time', 'symptoms']
+        fields = ['doctor', 'datetime', 'appointment_type']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'time': forms.TimeInput(attrs={'type': 'time'}),
-            'symptoms': forms.Textarea(attrs={'rows': 4}),
+            'datetime': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'form-control'
+            }),
         }
 
     def clean(self):
