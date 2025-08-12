@@ -4,13 +4,77 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, Appointment, MedicalRecord, EmergencyContact
 
 class UserRegistrationForm(UserCreationForm):
+    USER_TYPE_CHOICES = [
+        ('patient', 'Register as Patient'),
+        ('doctor', 'Register as Doctor'),
+    ]
+    
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
+    user_type = forms.ChoiceField(
+        choices=USER_TYPE_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'btn-check'}),
+        label='Register as',
+    )
+    
+    # Additional fields for doctors
+    specialization = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g., Cardiology, Pediatrics'
+        }),
+        help_text='Required for doctors'
+    )
+    license_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Medical License Number'
+        }),
+        help_text='Required for doctors'
+    )
+    experience_years = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Years of Experience'
+        }),
+        help_text='Required for doctors'
+    )
+    consultation_fee = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Consultation Fee'
+        }),
+        help_text='Required for doctors'
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'user_type']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            if field != 'user_type':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                    'placeholder': self.fields[field].label
+                })
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_type = cleaned_data.get('user_type')
+
+        if user_type == 'doctor':
+            required_fields = ['specialization', 'license_number', 'experience_years', 'consultation_fee']
+            for field in required_fields:
+                if not cleaned_data.get(field):
+                    self.add_error(field, f'This field is required for doctors')
+        return cleaned_data
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:

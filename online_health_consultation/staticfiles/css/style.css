@@ -1,0 +1,61 @@
+:root {
+    --main-green: #2e7d32;
+    --light-green: #a5d6a7;
+    --dark-green: #1b5e20;
+}
+
+body {
+    background-color: #f0fdf4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-custom {
+    background-color: var(--dark-green);
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+    color: white;
+}
+
+.navbar-custom .nav-link:hover {
+    text-decoration: underline;
+    color: var(--light-green);
+}
+
+main {
+    flex: 1;
+    padding: 2rem 1rem;
+}
+
+footer {
+    background-color: var(--main-green);
+    color: white;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+/* Dashboard styles */
+.dashboard-stat {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.dashboard-stat:hover {
+    transform: translateY(-5px);
+}
+
+/* Form styles */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    transform: scale(.85) translateY(-1rem) translateX(.15rem);
+}
+
+.form-floating > label {
+    color: #6c757d;
+}

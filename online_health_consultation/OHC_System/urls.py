@@ -29,6 +29,14 @@ urlpatterns = [
     path('emergency/', views.emergency, name='emergency'),
     path('emergency/contact/', views.emergency_contact, name='emergency_contact'),
     
+    # Doctor URLs
+    path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),
+    path('doctor/appointments/', views.doctor_appointments, name='doctor_appointments'),
+    path('doctor/consultations/', views.doctor_consultations, name='doctor_consultations'),
+    path('doctor/availability/', views.doctor_availability, name='doctor_availability'),
+    path('doctor/patients/', views.doctor_patients, name='doctor_patients'),
+    path('doctor/prescriptions/', views.doctor_prescriptions, name='doctor_prescriptions'),
+    
     # User Profile & Settings
     path('profile/', views.profile, name='profile'),
     path('profile/settings/', views.profile_settings, name='profile_settings'),

@@ -28,7 +28,7 @@
                 <h3 class="card-title h4">Quick Consultation</h3>
                 <p class="card-text">Connect with qualified doctors instantly for urgent medical advice.</p>
                 {% if user.is_authenticated %}
-                <a href="{% url 'consult' %}" class="btn btn-success">Start Consultation</a>
+                <a href="{% url 'book_consultation' %}" class="btn btn-success">Start Consultation</a>
                 {% else %}
                 <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Consult</a>
                 {% endif %}

@@ -1,0 +1,123 @@
+:root {
+    --main-green: #2e7d32;
+    --light-green: #a5d6a7;
+    --dark-green: #1b5e20;
+}
+
+body {
+    background-color: #f0fdf4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-custom {
+    background-color: var(--dark-green);
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+    color: white;
+}
+
+.navbar-custom .nav-link:hover {
+    text-decoration: underline;
+    color: var(--light-green);
+}
+
+main {
+    flex: 1;
+    padding: 2rem 1rem;
+}
+
+footer {
+    background-color: var(--main-green);
+    color: white;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+/* Dashboard styles */
+.dashboard-stat {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.dashboard-stat:hover {
+    transform: translateY(-5px);
+}
+
+/* Form styles */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    transform: scale(.85) translateY(-1rem) translateX(.15rem);
+}
+
+.form-floating > label {
+    color: #6c757d;
+}
+
+/* Doctor Dashboard Styles */
+.dashboard-stat {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.dashboard-stat:hover {
+    transform: translateY(-5px);
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 20px 0;
+    border-left: 2px solid #e9ecef;
+    margin-left: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -9px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--main-green);
+    border: 3px solid white;
+}
+
+.timeline-content {
+    padding-left: 25px;
+}
+
+.timeline-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-subtitle {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #adb5bd;
+}
+
+/* Status Badge Colors */
+.badge.bg-scheduled { background-color: #ffc107 !important; }
+.badge.bg-confirmed { background-color: #0dcaf0 !important; }
+.badge.bg-completed { background-color: #198754 !important; }
+.badge.bg-cancelled { background-color: #dc3545 !important; }
+.badge.bg-no-show { background-color: #6c757d !important; }

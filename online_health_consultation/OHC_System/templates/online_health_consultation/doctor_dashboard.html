@@ -1,0 +1,140 @@
+{% extends 'online_health_consultation/base.html' %}
+{% load static %}
+
+{% block title %}Doctor Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-3">Welcome, Dr. {{ user.get_full_name|default:user.username }}</h2>
+            <p class="text-muted">Manage your appointments, consultations, and patient records.</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="dashboard-stat bg-primary bg-opacity-10">
+                <h3 class="h5 text-primary">Today's Appointments</h3>
+                <p class="display-4 mb-0">{{ today_appointments_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat bg-success bg-opacity-10">
+                <h3 class="h5 text-success">Pending Consultations</h3>
+                <p class="display-4 mb-0">{{ pending_consultations_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat bg-info bg-opacity-10">
+                <h3 class="h5 text-info">Total Patients</h3>
+                <p class="display-4 mb-0">{{ total_patients_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat bg-warning bg-opacity-10">
+                <h3 class="h5 text-warning">Completed Sessions</h3>
+                <p class="display-4 mb-0">{{ completed_sessions_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Today's Schedule</h4>
+                    <a href="{% url 'doctor_appointments' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in today_appointments %}
+                                    <tr>
+                                        <td>{{ appointment.datetime|time }}</td>
+                                        <td>{{ appointment.user.get_full_name }}</td>
+                                        <td>{{ appointment.appointment_type }}</td>
+                                        <td><span class="badge bg-{{ appointment.status|lower }}">{{ appointment.status }}</span></td>
+                                        <td>
+                                            <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No appointments scheduled for today.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Quick Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'doctor_consultations' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-stethoscope me-2"></i>View Consultations
+                        </a>
+                        <a href="{% url 'doctor_prescriptions' %}" class="btn btn-outline-success">
+                            <i class="fas fa-prescription me-2"></i>Write Prescription
+                        </a>
+                        <a href="{% url 'doctor_availability' %}" class="btn btn-outline-info">
+                            <i class="fas fa-calendar-alt me-2"></i>Update Availability
+                        </a>
+                        <a href="{% url 'doctor_patients' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-users me-2"></i>View Patient List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Recent Activity</h4>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for activity in recent_activities %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">{{ activity.title }}</h3>
+                                <p class="timeline-subtitle">{{ activity.description }}</p>
+                                <span class="timeline-date">{{ activity.timestamp }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">No recent activity to show.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

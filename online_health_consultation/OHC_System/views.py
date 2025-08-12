@@ -1,9 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import Appointment, MedicalRecord, Prescription, HealthArticle
-from .forms import AppointmentForm, MedicalRecordForm, EmergencyContactForm
+from .models import (
+    Profile, Doctor, Appointment, MedicalRecord, 
+    Prescription, HealthArticle
+)
+from .forms import (
+    UserRegistrationForm, ProfileUpdateForm, 
+    AppointmentForm, MedicalRecordForm, EmergencyContactForm
+)
 
 def home(request):
     """Render the home page of the Online Health Consultation System."""
@@ -17,8 +24,10 @@ from .forms import UserRegistrationForm, ProfileUpdateForm
 from django.contrib import messages
 
 def user_login(request):
-    """Handle user login."""
+    """Handle user login with role-based redirection."""
     if request.user.is_authenticated:
+        if hasattr(request.user, 'profile') and request.user.profile.is_doctor:
+            return redirect('doctor_dashboard')
         return redirect('dashboard')
         
     if request.method == 'POST':
@@ -29,8 +38,13 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {username}!')
-                next_url = request.GET.get('next', 'dashboard')
+                # Redirect based on user role
+                if hasattr(user, 'profile') and user.profile.is_doctor:
+                    messages.success(request, f'Welcome back, Dr. {user.get_full_name() or username}!')
+                    next_url = request.GET.get('next', 'doctor_dashboard')
+                else:
+                    messages.success(request, f'Welcome back, {username}!')
+                    next_url = request.GET.get('next', 'dashboard')
                 return redirect(next_url)
             else:
                 messages.error(request, 'Invalid username or password.')
@@ -42,11 +56,42 @@ def user_login(request):
     return render(request, 'online_health_consultation/login.html', {'form': form})
 
 def register(request):
-    """Handle user registration."""
+    """Handle user registration with role selection."""
     if request.user.is_authenticated:
         return redirect('dashboard')
         
     if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.email = form.cleaned_data['email']
+                user.save()
+                
+                # Create user profile
+                profile = Profile.objects.create(
+                    user=user,
+                    is_doctor=(form.cleaned_data['user_type'] == 'doctor')
+                )
+                
+                # If registering as a doctor, create doctor profile
+                if form.cleaned_data['user_type'] == 'doctor':
+                    Doctor.objects.create(
+                        user=user,
+                        specialization=form.cleaned_data['specialization'],
+                        license_number=form.cleaned_data['license_number'],
+                        experience_years=form.cleaned_data['experience_years'],
+                        consultation_fee=form.cleaned_data['consultation_fee'],
+                        available_from='09:00',  # Default availability
+                        available_to='17:00'
+                    )
+                
+                messages.success(request, 'Your account has been created successfully! You can now log in.')
+                return redirect('login')
+            except Exception as e:
+                messages.error(request, f'An error occurred while creating your account: {str(e)}')
+                if user and user.id:  # If user was created but profile/doctor creation failed
+                    user.delete()  # Rollback user creation
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -239,3 +284,104 @@ def profile(request):
 def profile_settings(request):
     """Update user profile settings."""
     return render(request, 'online_health_consultation/profile_settings.html')
+
+# Doctor Views
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
+from datetime import datetime, timedelta
+
+def is_doctor(user):
+    return user.profile.is_doctor if hasattr(user, 'profile') else False
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_dashboard(request):
+    """Doctor's dashboard view."""
+    today = timezone.now().date()
+    doctor = request.user.doctor
+    
+    # Get today's appointments
+    today_appointments = Appointment.objects.filter(
+        doctor=doctor,
+        datetime__date=today
+    ).order_by('datetime')
+    
+    # Get pending consultations
+    pending_consultations = Appointment.objects.filter(
+        doctor=doctor,
+        status='Scheduled',
+        appointment_type='Consultation'
+    ).count()
+    
+    # Get total unique patients
+    total_patients = Appointment.objects.filter(
+        doctor=doctor
+    ).values('user').distinct().count()
+    
+    # Get completed sessions
+    completed_sessions = Appointment.objects.filter(
+        doctor=doctor,
+        status='Completed'
+    ).count()
+    
+    # Get recent activities
+    recent_activities = []  # You can implement activity tracking here
+    
+    context = {
+        'today_appointments': today_appointments[:5],  # Show only first 5
+        'today_appointments_count': today_appointments.count(),
+        'pending_consultations_count': pending_consultations,
+        'total_patients_count': total_patients,
+        'completed_sessions_count': completed_sessions,
+        'recent_activities': recent_activities,
+    }
+    
+    return render(request, 'online_health_consultation/doctor_dashboard.html', context)
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_appointments(request):
+    """View doctor's appointments."""
+    doctor = request.user.doctor
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('-datetime')
+    return render(request, 'online_health_consultation/doctor_appointments.html', {'appointments': appointments})
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_consultations(request):
+    """View doctor's consultations."""
+    doctor = request.user.doctor
+    consultations = Appointment.objects.filter(
+        doctor=doctor,
+        appointment_type='Consultation'
+    ).order_by('-datetime')
+    return render(request, 'online_health_consultation/doctor_consultations.html', {'consultations': consultations})
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_availability(request):
+    """Update doctor's availability."""
+    doctor = request.user.doctor
+    if request.method == 'POST':
+        # Handle availability update
+        pass
+    return render(request, 'online_health_consultation/doctor_availability.html', {'doctor': doctor})
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_patients(request):
+    """View doctor's patient list."""
+    doctor = request.user.doctor
+    patients = User.objects.filter(
+        patient_appointments__doctor=doctor
+    ).distinct()
+    return render(request, 'online_health_consultation/doctor_patients.html', {'patients': patients})
+
+@login_required
+@user_passes_test(is_doctor)
+def doctor_prescriptions(request):
+    """Write new prescriptions."""
+    if request.method == 'POST':
+        # Handle prescription creation
+        pass
+    return render(request, 'online_health_consultation/doctor_prescriptions.html')

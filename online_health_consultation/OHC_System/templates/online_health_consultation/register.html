@@ -1,13 +1,13 @@
-{% extends "online_health_consultation/base.html" %}
-{% load crispy_forms_tags %}
+{% extends "online_health_consultation/Base.html" %}
+{% load static %}
 
-{% block title %}Register - Online Health Consultation{% endblock %}
+{% block title %}Register - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
+            <div class="card shadow">
                 <div class="card-body p-5">
                     <!-- Registration Header -->
                     <div class="text-center mb-4">
@@ -29,6 +29,23 @@
                         </div>
                         {% endif %}
 
+                        <!-- User Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label d-block">Register as:</label>
+                            <div class="btn-group w-100" role="group">
+                                {% for value, text in form.user_type.field.choices %}
+                                <input type="radio" class="btn-check" name="{{ form.user_type.name }}"
+                                       id="{{ value }}" value="{{ value }}" 
+                                       {% if forloop.first %}checked{% endif %}>
+                                <label class="btn btn-outline-success" for="{{ value }}">
+                                    <i class="fas {% if value == 'patient' %}fa-user{% else %}fa-user-md{% endif %} me-2"></i>
+                                    {{ text }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Basic Info -->
                         <div class="row">
                             <!-- First Name -->
                             <div class="col-md-6 mb-3">
@@ -37,6 +54,7 @@
                                            id="{{ form.first_name.id_for_label }}" 
                                            name="first_name" 
                                            placeholder="First Name"
+                                           value="{{ form.first_name.value|default:'' }}"
                                            required>
                                     <label for="{{ form.first_name.id_for_label }}">First Name</label>
                                     {% if form.first_name.errors %}
