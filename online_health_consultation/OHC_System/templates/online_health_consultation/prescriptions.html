@@ -84,13 +84,13 @@
                 </div>
                 <div class="card-footer bg-light">
                     <div class="btn-group">
-                        <button class="btn btn-outline-success btn-sm" onclick="printPrescription({{ prescription.id }})">
+                        <button class="btn btn-outline-success btn-sm" onclick="printPrescription('{{ prescription.id }}')">
                             <i class="fas fa-print me-1"></i>Print
                         </button>
                         <a href="{% url 'prescription_detail' prescription.id %}" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-eye me-1"></i>View Details
                         </a>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="sharePrescription({{ prescription.id }})">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="sharePrescription('{{ prescription.id }}')">
                             <i class="fas fa-share-alt me-1"></i>Share
                         </button>
                     </div>
