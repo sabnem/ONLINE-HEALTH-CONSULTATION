@@ -1,0 +1,158 @@
+/* Custom Colors */
+:root {
+    --main-green: #2e7d32;
+    --light-green: #a5d6a7;
+    --dark-green: #1b5e20;
+    --hover-green: #388e3c;
+}
+
+/* General Styles */
+body {
+    background-color: #f0fdf4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navigation Styles */
+.navbar-custom {
+    background-color: var(--dark-green);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom .nav-link:hover {
+    color: var(--light-green);
+    transform: translateY(-2px);
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Button Styles */
+.btn-success {
+    background-color: var(--main-green);
+    border-color: var(--main-green);
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: var(--hover-green);
+    border-color: var(--hover-green);
+    transform: translateY(-2px);
+}
+
+/* Footer Styles */
+footer {
+    background-color: var(--main-green);
+    color: white;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--main-green);
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.25);
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 1em;
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 8px;
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+.modal-header {
+    background-color: var(--main-green);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+/* List Group Styles */
+.list-group-item {
+    border: none;
+    margin-bottom: 0.5rem;
+    border-radius: 8px !important;
+}
+
+/* Pagination Styles */
+.page-link {
+    color: var(--main-green);
+}
+
+.page-item.active .page-link {
+    background-color: var(--main-green);
+    border-color: var(--main-green);
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .navbar-custom .navbar-toggler {
+        border-color: rgba(255,255,255,0.5);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    body {
+        background-color: white;
+    }
+}

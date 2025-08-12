@@ -1,0 +1,156 @@
+{% extends "online_health_consultation/Base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Prescriptions - Online Health Consultation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">My Prescriptions</h2>
+
+    <!-- Prescriptions Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="date_from" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="date_to" class="form-control">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-outline-success">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Prescriptions List -->
+    {% if prescriptions %}
+    <div class="row">
+        {% for prescription in prescriptions %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Prescription #{{ prescription.id }}</h5>
+                        <span class="badge {% if prescription.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ prescription.is_active|yesno:"Active,Expired" }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong><i class="fas fa-user-md me-2"></i>Doctor:</strong>
+                        <p class="mb-0">Dr. {{ prescription.doctor.user.get_full_name }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-calendar me-2"></i>Date:</strong>
+                        <p class="mb-0">{{ prescription.date|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-stethoscope me-2"></i>Diagnosis:</strong>
+                        <p class="mb-0">{{ prescription.diagnosis }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-pills me-2"></i>Medications:</strong>
+                        <div class="card bg-light mt-2">
+                            <div class="card-body">
+                                {{ prescription.medications|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if prescription.instructions %}
+                    <div class="mb-3">
+                        <strong><i class="fas fa-list-ul me-2"></i>Instructions:</strong>
+                        <p class="mb-0">{{ prescription.instructions }}</p>
+                    </div>
+                    {% endif %}
+                    {% if prescription.next_visit %}
+                    <div class="mb-3">
+                        <strong><i class="fas fa-calendar-check me-2"></i>Next Visit:</strong>
+                        <p class="mb-0">{{ prescription.next_visit|date:"F d, Y" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-success btn-sm" onclick="printPrescription({{ prescription.id }})">
+                            <i class="fas fa-print me-1"></i>Print
+                        </button>
+                        <a href="{% url 'prescription_detail' prescription.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>View Details
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="sharePrescription({{ prescription.id }})">
+                            <i class="fas fa-share-alt me-1"></i>Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if prescriptions.has_other_pages %}
+    <nav aria-label="Prescriptions pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if prescriptions.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ prescriptions.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in prescriptions.paginator.page_range %}
+            <li class="page-item {% if prescriptions.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if prescriptions.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ prescriptions.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-prescription fa-4x text-muted mb-3"></i>
+        <h4>No Prescriptions Found</h4>
+        <p class="text-muted">Your prescriptions will appear here after consultations.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function printPrescription(prescriptionId) {
+    window.open(`/prescriptions/${prescriptionId}/print/`, '_blank');
+}
+
+function sharePrescription(prescriptionId) {
+    // Implement sharing functionality (e.g., email, download PDF)
+    alert('Sharing functionality will be implemented soon.');
+}
+</script>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

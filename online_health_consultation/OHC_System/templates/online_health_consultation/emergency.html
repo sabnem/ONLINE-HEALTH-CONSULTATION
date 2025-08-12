@@ -1,0 +1,175 @@
+{% extends "online_health_consultation/Base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Emergency Services - Online Health Consultation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="alert alert-danger text-center mb-4" role="alert">
+        <h4 class="alert-heading mb-2">
+            <i class="fas fa-exclamation-triangle me-2"></i>Emergency Services
+        </h4>
+        <p class="mb-0">If you're experiencing a life-threatening emergency, immediately call your local emergency number or visit the nearest emergency room.</p>
+    </div>
+
+    <div class="row">
+        <!-- Emergency Contact Form -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Request Emergency Assistance</h3>
+                    <form method="post" action="{% url 'emergency_contact' %}">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-danger mt-3">
+                            <i class="fas fa-ambulance me-2"></i>Request Emergency Help
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Emergency Resources</h3>
+                    
+                    <!-- Emergency Numbers -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-phone-alt me-2"></i>Emergency Numbers</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <strong>Ambulance:</strong>
+                                <a href="tel:911" class="btn btn-outline-danger btn-sm ms-2">911</a>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Police:</strong>
+                                <a href="tel:911" class="btn btn-outline-danger btn-sm ms-2">911</a>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Fire Department:</strong>
+                                <a href="tel:911" class="btn btn-outline-danger btn-sm ms-2">911</a>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Poison Control:</strong>
+                                <a href="tel:1-800-222-1222" class="btn btn-outline-danger btn-sm ms-2">1-800-222-1222</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Nearby Hospitals -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-hospital me-2"></i>Nearby Hospitals</h5>
+                        <div id="hospitalsList">
+                            <div class="d-flex justify-content-center">
+                                <button class="btn btn-outline-success" onclick="findNearbyHospitals()">
+                                    <i class="fas fa-location-arrow me-2"></i>Find Nearby Hospitals
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- First Aid Tips -->
+                    <div>
+                        <h5><i class="fas fa-first-aid me-2"></i>Basic First Aid Tips</h5>
+                        <div class="accordion" id="firstAidAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                        Cardiac Emergency
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#firstAidAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="mb-0">
+                                            <li>Call emergency services immediately</li>
+                                            <li>Start CPR if trained</li>
+                                            <li>Use an AED if available</li>
+                                            <li>Keep the person lying down</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                        Severe Bleeding
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#firstAidAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="mb-0">
+                                            <li>Apply direct pressure to the wound</li>
+                                            <li>Use a clean cloth or sterile bandage</li>
+                                            <li>Elevate the injured area</li>
+                                            <li>Seek immediate medical attention</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                        Choking
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#firstAidAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="mb-0">
+                                            <li>Encourage coughing</li>
+                                            <li>Perform back blows</li>
+                                            <li>Use abdominal thrusts (Heimlich maneuver)</li>
+                                            <li>Call emergency if unsuccessful</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function findNearbyHospitals() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            // Here you would typically make an API call to your backend
+            // which would then query a service like Google Places API
+            // For now, we'll just show a demo list
+            const hospitalsList = document.getElementById('hospitalsList');
+            hospitalsList.innerHTML = `
+                <div class="list-group mt-3">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">City General Hospital</h6>
+                            <small>1.2 miles</small>
+                        </div>
+                        <p class="mb-1">123 Medical Center Dr</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">St. Mary's Medical Center</h6>
+                            <small>2.5 miles</small>
+                        </div>
+                        <p class="mb-1">456 Health Park Ave</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Community Emergency Care</h6>
+                            <small>3.1 miles</small>
+                        </div>
+                        <p class="mb-1">789 Emergency Blvd</p>
+                    </a>
+                </div>
+            `;
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+</script>
+{% endblock %}

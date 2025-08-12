@@ -30,14 +30,15 @@
                         {% endif %}
 
                         <!-- Username Field -->
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Username</label>
+                        <div class="form-floating mb-3">
                             <input type="text"
                                    class="form-control {% if form.username.errors %}is-invalid{% endif %}"
                                    id="id_username"
                                    name="username"
+                                   placeholder="Username"
                                    required
                                    value="{{ form.username.value|default_if_none:'' }}">
+                            <label for="id_username">Username</label>
                             <div class="invalid-feedback">
                                 {% for error in form.username.errors %}
                                     {{ error }}
@@ -46,13 +47,14 @@
                         </div>
 
                         <!-- Password Field -->
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Password</label>
+                        <div class="form-floating mb-3">
                             <input type="password"
                                    class="form-control {% if form.password.errors %}is-invalid{% endif %}"
                                    id="id_password"
                                    name="password"
+                                   placeholder="Password"
                                    required>
+                            <label for="id_password">Password</label>
                             <div class="invalid-feedback">
                                 {% for error in form.password.errors %}
                                     {{ error }}
@@ -84,17 +86,69 @@
                             <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">OR</span>
                         </div>
                         <div class="d-flex justify-content-center gap-3 mt-3">
-                            <a href="#" class="btn btn-outline-dark rounded-circle" title="Login with Google">
-                                <i class="fab fa-google"></i>
-                            </a>
-                            <a href="#" class="btn btn-outline-dark rounded-circle" title="Login with Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="btn btn-outline-dark rounded-circle" title="Login with Apple">
-                                <i class="fab fa-apple"></i>
-                            </a>
+                            <button class="btn social-icon" title="Login with Google">
+                                <i class="fa-brands fa-google" style="color: #206fac;"></i>
+                            </button>
+                            <button class="btn social-icon" title="Login with Facebook">
+                                <i class="fa-brands fa-facebook" style="color: #114896;"></i>
+                            </button>
+                            <button class="btn social-icon" title="Login with Apple">
+                                <i class="fa-brands fa-apple" style="color: #24bfc2;"></i>
+                            </button>
                         </div>
                     </div>
+
+                    <style>
+                        .social-icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s ease;
+                        }
+                        .social-icon:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+                        .social-icon i {
+                            font-size: 18px;
+                            line-height: 1;
+                            width: auto;
+                            height: auto;
+                        }
+                        /* Form floating styles */
+                        .form-floating > .form-control:focus,
+                        .form-floating > .form-control:not(:placeholder-shown) {
+                            padding-top: 1.625rem;
+                            padding-bottom: 0.625rem;
+                        }
+                        .form-floating > .form-control:focus ~ label,
+                        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+                            color: #198754;
+                        }
+                        .form-floating > label {
+                            padding: 1rem 0.75rem;
+                            transition: all 0.2s ease-in-out;
+                        }
+                        .form-control:focus {
+                            border-color: #198754;
+                            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+                        }
+                        /* Social icon colors */
+                        .btn-outline-danger i {
+                            color: #dc3545;
+                        }
+                        .btn-outline-primary i {
+                            color: #0d6efd;
+                        }
+                        .btn-outline-dark i {
+                            color: #212529;
+                        }
+                    </style>
 
                     <!-- Registration Link -->
                     <div class="text-center mt-4">

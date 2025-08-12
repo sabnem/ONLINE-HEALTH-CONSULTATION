@@ -1,0 +1,282 @@
+{% extends "online_health_consultation/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - Online Health Consultation{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <!-- Registration Header -->
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-success">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </h2>
+                        <p class="text-muted">Join our healthcare platform for personalized medical consultation</p>
+                    </div>
+
+                    <!-- Registration Form -->
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- First Name -->
+                            <div class="col-md-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                           id="{{ form.first_name.id_for_label }}" 
+                                           name="first_name" 
+                                           placeholder="First Name"
+                                           required>
+                                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                    {% if form.first_name.errors %}
+                                        <div class="invalid-feedback">{{ form.first_name.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                           id="{{ form.last_name.id_for_label }}" 
+                                           name="last_name" 
+                                           placeholder="Last Name"
+                                           required>
+                                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                    {% if form.last_name.errors %}
+                                        <div class="invalid-feedback">{{ form.last_name.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.username.id_for_label }}" 
+                                       name="username" 
+                                       placeholder="Username"
+                                       required>
+                                <label for="{{ form.username.id_for_label }}">Username</label>
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback">{{ form.username.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.email.id_for_label }}" 
+                                       name="email" 
+                                       placeholder="Email Address"
+                                       required>
+                                <label for="{{ form.email.id_for_label }}">Email Address</label>
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback">{{ form.email.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.password1.id_for_label }}" 
+                                       name="password1" 
+                                       placeholder="Password"
+                                       required>
+                                <label for="{{ form.password1.id_for_label }}">Password</label>
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback">{{ form.password1.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.password2.id_for_label }}" 
+                                       name="password2" 
+                                       placeholder="Confirm Password"
+                                       required>
+                                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback">{{ form.password2.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" class="text-success">Terms of Service</a> and 
+                                <a href="#" class="text-success">Privacy Policy</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                You must agree to the terms and conditions.
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success py-2">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Optional Divider -->
+                    <div class="text-center my-4">
+                        <div class="position-relative">
+                            <hr>
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">OR</span>
+                        </div>
+                        <div class="d-flex justify-content-center gap-3 mt-3">
+                            <a href="#" class="btn social-icon" title="Register with Google">
+                                <i class="fa-brands fa-google" style="color: #206fac;"></i>
+                            </a>
+                            <a href="#" class="btn social-icon" title="Register with Facebook">
+                                <i class="fa-brands fa-facebook" style="color: #114896;"></i>
+                            </a>
+                            <a href="#" class="btn social-icon" title="Register with Apple">
+                                <i class="fa-brands fa-apple" style="color: #24bfc2;"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                                        <style>
+                        .social-icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s ease;
+                        }
+                        .social-icon:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+                        .social-icon i {
+                            font-size: 18px;
+                            line-height: 1;
+                            width: auto;
+                            height: auto;
+                        }
+                        /* Form floating styles */
+                        .form-floating > .form-control:focus,
+                        .form-floating > .form-control:not(:placeholder-shown) {
+                            padding-top: 1.625rem;
+                            padding-bottom: 0.625rem;
+                        }
+                        .form-floating > .form-control:focus ~ label,
+                        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+                            color: #198754;
+                        }
+                        .form-floating > label {
+                            padding: 1rem 0.75rem;
+                            transition: all 0.2s ease-in-out;
+                        }
+                        .form-control:focus {
+                            border-color: #198754;
+                            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+                        }
+                        /* Social icon colors */
+                        .btn-outline-danger i {
+                            color: #dc3545;
+                        }
+                        .btn-outline-primary i {
+                            color: #0d6efd;
+                        }
+                        .btn-outline-dark i {
+                            color: #212529;
+                        }
+                    </style>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="text-success fw-bold">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Bootstrap form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Password strength indicator
+    const password = document.getElementById('id_password1');
+    const strengthMeter = document.createElement('div');
+    strengthMeter.className = 'progress mt-2';
+    strengthMeter.style.height = '5px';
+    
+    if (password) {
+        password.parentNode.appendChild(strengthMeter);
+        
+        password.addEventListener('input', function() {
+            const strength = calculatePasswordStrength(this.value);
+            updateStrengthMeter(strength);
+        });
+    }
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[a-z]/)) strength += 25;
+        if (password.match(/[A-Z]/)) strength += 25;
+        if (password.match(/[0-9]/)) strength += 25;
+        return strength;
+    }
+
+    function updateStrengthMeter(strength) {
+        let color = 'danger';
+        if (strength > 75) color = 'success';
+        else if (strength > 50) color = 'info';
+        else if (strength > 25) color = 'warning';
+
+        strengthMeter.innerHTML = `
+            <div class="progress-bar bg-${color}" 
+                 role="progressbar" 
+                 style="width: ${strength}%" 
+                 aria-valuenow="${strength}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100"></div>
+        `;
+    }
+});
+</script>
+{% endblock %}

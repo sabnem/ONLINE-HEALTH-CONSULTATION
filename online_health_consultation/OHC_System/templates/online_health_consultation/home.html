@@ -1,19 +1,167 @@
 {% extends "online_health_consultation/Base.html" %}
+{% load static %}
 
 {% block title %}Home - Online Health Consultation{% endblock %}
 
 {% block content %}
-<div style="text-align: center;">
-    <h2>Welcome to the Online Health Consultation System</h2>
-    <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
-        Book appointments, consult with licensed doctors, and manage your medical records—all from the comfort of your home.
-    </p>
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 bg-light rounded-3 mb-4">
+    <div class="container">
+        <h1 class="display-4 fw-bold text-success mb-3">Your Health, Our Priority</h1>
+        <p class="lead mb-4">Access quality healthcare from the comfort of your home with our secure and reliable online consultation platform.</p>
+        {% if not user.is_authenticated %}
+        <div class="cta-buttons">
+            <a href="{% url 'register' %}" class="btn btn-success btn-lg me-3">Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-success btn-lg">Sign In</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
 
-    <div style="margin-top: 2rem;">
-        <a href="{% url 'consult' %}" style="background-color: #2e7d32; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; margin: 0.5rem; display: inline-block;">Consult a Doctor</a>
-        <a href="{% url 'appointments' %}" style="background-color: #66bb6a; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; margin: 0.5rem; display: inline-block;">View Appointments</a>
+<!-- Main Features Section -->
+<div class="row g-4 mb-5">
+    <!-- Quick Consultation -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-user-md fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">Quick Consultation</h3>
+                <p class="card-text">Connect with qualified doctors instantly for urgent medical advice.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'consult' %}" class="btn btn-success">Start Consultation</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Consult</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
+    <!-- Schedule Appointments -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="far fa-calendar-check fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">Schedule Appointments</h3>
+                <p class="card-text">Book video consultations with specialists at your convenient time.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'appointments' %}" class="btn btn-success">Book Appointment</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Book</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Records -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-notes-medical fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">Health Records</h3>
+                <p class="card-text">Securely store and access your medical history and reports.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'records' %}" class="btn btn-success">View Records</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Access</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Management -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-prescription fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">E-Prescriptions</h3>
+                <p class="card-text">Get digital prescriptions and medicine reminders.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'prescriptions' %}" class="btn btn-success">View Prescriptions</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-success">Login to View</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Articles -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-book-medical fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">Health Resources</h3>
+                <p class="card-text">Access verified medical articles and health tips.</p>
+                <a href="{% url 'articles' %}" class="btn btn-success">Read Articles</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Support -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-ambulance fa-3x text-success mb-3"></i>
+                <h3 class="card-title h4">Emergency Support</h3>
+                <p class="card-text">24/7 emergency helpline and ambulance services.</p>
+                <a href="{% url 'emergency' %}" class="btn btn-danger">Emergency Help</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Why Choose Us Section -->
+<section class="why-choose-us bg-light rounded-3 p-4 mb-5">
+    <h2 class="text-center mb-4">Why Choose Our Platform?</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-user-md text-success me-3"></i>
+                <h4 class="h5 mb-0">Verified Doctors</h4>
+            </div>
+            <p>All our doctors are verified professionals with valid medical licenses.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-lock text-success me-3"></i>
+                <h4 class="h5 mb-0">Secure Platform</h4>
+            </div>
+            <p>Your health data is protected with enterprise-grade security.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-clock text-success me-3"></i>
+                <h4 class="h5 mb-0">24/7 Support</h4>
+            </div>
+            <p>Round-the-clock medical support for your health needs.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Download App Section -->
+<section class="app-download text-center py-5">
+    <h2 class="mb-4">Get Our Mobile App</h2>
+    <p class="mb-4">Download our mobile app for a better consultation experience</p>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="#" class="btn btn-dark"><i class="fab fa-apple me-2"></i>App Store</a>
+        <a href="#" class="btn btn-dark"><i class="fab fa-google-play me-2"></i>Google Play</a>
+    </div>
+</section>
+
+<!-- Custom CSS -->
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('{% static "images/hero-bg.jpg" %}') center/cover;
+        padding: 5rem 0;
+    }
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .why-choose-us i {
+        font-size: 2rem;
+    }
+</style>
 {% endblock %}
     
