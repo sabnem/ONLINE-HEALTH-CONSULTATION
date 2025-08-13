@@ -3,6 +3,25 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, Appointment, MedicalRecord, EmergencyContact
 
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'First Name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Last Name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email'
+            })
+        }
+
 class UserRegistrationForm(UserCreationForm):
     USER_TYPE_CHOICES = [
         ('patient', 'Register as Patient'),
@@ -93,32 +112,48 @@ class ProfileUpdateForm(forms.ModelForm):
         ('O-', 'O-'),
     ]
 
-    blood_group = forms.ChoiceField(choices=BLOOD_GROUP_CHOICES, required=False)
-    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    blood_group = forms.ChoiceField(
+        choices=BLOOD_GROUP_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    date_of_birth = forms.DateField(
+        required=True,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    phone_number = forms.CharField(
+        max_length=15,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Phone Number',
+            'pattern': '[0-9+\\-\\s]*'
+        })
+    )
+    emergency_contact_name = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Emergency Contact Name'
+        })
+    )
+    emergency_contact_phone = forms.CharField(
+        max_length=15,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Emergency Contact Phone',
+            'pattern': '[0-9+\\-\\s]*'
+        })
+    )
 
     class Meta:
         model = Profile
-        fields = ['phone_number', 'date_of_birth', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone']
-        widgets = {
-            'phone_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Phone Number',
-                'pattern': '[0-9+\-\s]*'
-            }),
-            'address': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Address',
-                'rows': 3
-            }),
-            'date_of_birth': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'emergency_contact': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Emergency Contact Number'
-            }),
-        }
+        fields = ['date_of_birth', 'phone_number', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone']
 
 class AppointmentForm(forms.ModelForm):
     class Meta:

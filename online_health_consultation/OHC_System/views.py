@@ -8,7 +8,7 @@ from .models import (
     Prescription, HealthArticle
 )
 from .forms import (
-    UserRegistrationForm, ProfileUpdateForm, 
+    UserRegistrationForm, ProfileUpdateForm, UserUpdateForm,
     AppointmentForm, MedicalRecordForm, EmergencyContactForm
 )
 
@@ -22,16 +22,29 @@ def profile(request):
     """Handle user profile view and updates."""
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        profile_form = None
         
-        if user_form.is_valid() and profile_form.is_valid():
+        if not request.user.profile.is_doctor:
+            profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        
+        if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
             user_form.save()
-            profile_form.save()
+            if profile_form:
+                profile_form.save()
             messages.success(request, 'Your profile has been updated successfully!')
             return redirect('profile')
+        else:
+            if user_form.errors:
+                for field, errors in user_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+            if profile_form and profile_form.errors:
+                for field, errors in profile_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        profile_form = None if request.user.profile.is_doctor else ProfileUpdateForm(instance=request.user.profile)
     
     context = {
         'user_form': user_form,

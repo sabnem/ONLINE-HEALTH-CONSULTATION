@@ -59,24 +59,113 @@
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
+                        {% if user.profile.is_doctor %}
+                        <!-- Doctor Profile -->
                         <div class="row">
-                            <!-- User Information -->
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-3">Personal Information</h6>
-                                {{ user_form|crispy }}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>As a doctor, only basic information can be updated.
+                                </div>
                             </div>
-                            
-                            <!-- Profile Information -->
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-3">Contact & Medical Information</h6>
-                                {{ profile_form|crispy }}
+                            <!-- Basic Information -->
+                            <div class="col-12">
+                                <h6 class="text-muted mb-3">Basic Information</h6>
+                                <div class="mb-3">
+                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="{{ user_form.first_name.id_for_label }}" name="first_name" value="{{ user_form.first_name.value|default:'' }}" placeholder="Enter your first name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="{{ user_form.last_name.id_for_label }}" name="last_name" value="{{ user_form.last_name.value|default:'' }}" placeholder="Enter your last name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="{{ user_form.email.id_for_label }}" name="email" value="{{ user_form.email.value|default:'' }}" placeholder="Enter your email address">
+                                </div>
                             </div>
                         </div>
+                        {% else %}
+                        <!-- Patient Profile -->
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-3">Basic Information</h6>
+                                        <div class="mb-3">
+                                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="{{ user_form.first_name.id_for_label }}" name="first_name" value="{{ user_form.first_name.value|default:'' }}" placeholder="Enter your first name">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="{{ user_form.last_name.id_for_label }}" name="last_name" value="{{ user_form.last_name.value|default:'' }}" placeholder="Enter your last name">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="{{ user_form.email.id_for_label }}" name="email" value="{{ user_form.email.value|default:'' }}" placeholder="Enter your email address">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Medical & Contact Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-3">Medical & Contact Information</h6>
+                                        {% if profile_form %}
+                                            <div class="mb-3">
+                                                <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                                <input type="date" class="form-control" id="{{ profile_form.date_of_birth.id_for_label }}" name="date_of_birth" value="{{ profile_form.date_of_birth.value|default:'' }}" required placeholder="Select your date of birth">
+                                            </div>
 
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Save Changes
-                            </button>
+                                            <div class="mb-3">
+                                                <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="{{ profile_form.phone_number.id_for_label }}" name="phone_number" value="{{ profile_form.phone_number.value|default:'' }}" required placeholder="Enter your phone number (e.g., +1234567890)">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="{{ profile_form.blood_group.id_for_label }}" class="form-label">Blood Group</label>
+                                                <select class="form-select" id="{{ profile_form.blood_group.id_for_label }}" name="blood_group" required>
+                                                    {% for value, text in profile_form.blood_group.field.choices %}
+                                                        <option value="{{ value }}" {% if profile_form.blood_group.value == value %}selected{% endif %}>{{ text }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <h6 class="text-muted mb-3 mt-4">Emergency Contact</h6>
+                                            <div class="mb-3">
+                                                <label for="{{ profile_form.emergency_contact_name.id_for_label }}" class="form-label">Contact Name</label>
+                                                <input type="text" class="form-control" id="{{ profile_form.emergency_contact_name.id_for_label }}" name="emergency_contact_name" value="{{ profile_form.emergency_contact_name.value|default:'' }}" required placeholder="Enter emergency contact's full name">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="{{ profile_form.emergency_contact_phone.id_for_label }}" class="form-label">Contact Phone</label>
+                                                <input type="tel" class="form-control" id="{{ profile_form.emergency_contact_phone.id_for_label }}" name="emergency_contact_phone" value="{{ profile_form.emergency_contact_phone.value|default:'' }}" required placeholder="Enter emergency contact's phone number">
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                All changes will be saved immediately
+                                            </span>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-save me-2"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
