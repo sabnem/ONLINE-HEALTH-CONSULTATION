@@ -17,7 +17,7 @@ class UserRegistrationForm(UserCreationForm):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     phone_number = forms.CharField(
-        required=False,
+        required=True,
         max_length=15
     )
     BLOOD_GROUP_CHOICES = [
@@ -29,7 +29,7 @@ class UserRegistrationForm(UserCreationForm):
     ]
     blood_group = forms.ChoiceField(
         choices=BLOOD_GROUP_CHOICES,
-        required=False
+        required=True
     )
     emergency_contact_name = forms.CharField(
         required=True,

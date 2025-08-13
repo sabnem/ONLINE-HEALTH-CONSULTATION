@@ -111,12 +111,17 @@ def register(request):
                 except Profile.DoesNotExist:
                     profile = Profile(user=user)
 
-                profile.is_doctor = (form.cleaned_data.get('user_type') == 'doctor')
-                profile.date_of_birth = form.cleaned_data.get('date_of_birth')
-                profile.phone_number = form.cleaned_data.get('phone_number', '')
-                profile.blood_group = form.cleaned_data.get('blood_group', '')
-                profile.emergency_contact_name = form.cleaned_data.get('emergency_contact_name')
-                profile.emergency_contact_phone = form.cleaned_data.get('emergency_contact_phone')
+                user_type = form.cleaned_data.get('user_type')
+                profile.is_doctor = (user_type == 'doctor')
+                
+                # Only save patient-specific fields if registering as a patient
+                if user_type == 'patient':
+                    # All these fields are now required for patients
+                    profile.date_of_birth = form.cleaned_data.get('date_of_birth')
+                    profile.phone_number = form.cleaned_data.get('phone_number')
+                    profile.blood_group = form.cleaned_data.get('blood_group')
+                    profile.emergency_contact_name = form.cleaned_data.get('emergency_contact_name')
+                    profile.emergency_contact_phone = form.cleaned_data.get('emergency_contact_phone')
                 profile.save()
 
                 # If registering as a doctor, create doctor profile
