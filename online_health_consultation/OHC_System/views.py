@@ -17,11 +17,47 @@ def home(request):
     articles = HealthArticle.objects.filter(featured=True)[:3]
     return render(request, 'online_health_consultation/home.html', {'featured_articles': articles})
 
+@login_required
+def profile(request):
+    """Handle user profile view and updates."""
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
+    
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'appointments': request.user.patient_appointments.order_by('-datetime')[:5] if not request.user.profile.is_doctor else None,
+        'medical_records': MedicalRecord.objects.filter(user=request.user).order_by('-date')[:5] if not request.user.profile.is_doctor else None,
+        'prescriptions': Prescription.objects.filter(user=request.user).order_by('-date')[:5] if not request.user.profile.is_doctor else None,
+    }
+    return render(request, 'online_health_consultation/profile.html', context)
+
 # Authentication Views
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import UserRegistrationForm, ProfileUpdateForm
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+def user_logout(request):
+    logout(request)
+    # Ensure the session is cleared
+    request.session.flush()
+    # Clear any cookies
+    response = redirect('home')
+    response.delete_cookie('sessionid')
+    messages.success(request, 'You have been successfully logged out.')
+    return response
 
 def user_login(request):
     if request.user.is_authenticated:

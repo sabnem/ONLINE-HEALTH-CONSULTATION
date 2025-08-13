@@ -43,12 +43,52 @@ class UserRegistrationForm(UserCreationForm):
         
         return cleaned_data
 
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+        }
+
 class ProfileUpdateForm(forms.ModelForm):
+    BLOOD_GROUP_CHOICES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+    ]
+
+    blood_group = forms.ChoiceField(choices=BLOOD_GROUP_CHOICES, required=False)
+
     class Meta:
         model = Profile
         fields = ['phone_number', 'address', 'date_of_birth', 'blood_group', 'emergency_contact']
         widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Phone Number',
+                'pattern': '[0-9+\-\s]*'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Address',
+                'rows': 3
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'emergency_contact': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Emergency Contact Number'
+            }),
         }
 
 class AppointmentForm(forms.ModelForm):

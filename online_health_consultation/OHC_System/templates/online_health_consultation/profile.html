@@ -1,0 +1,158 @@
+{% extends "online_health_consultation/Base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="display-1 text-muted">
+                            <i class="fas fa-user-circle"></i>
+                        </span>
+                    </div>
+                    <h4 class="card-title mb-0">{{ user.get_full_name }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <p class="mb-0">
+                        <span class="badge bg-{{ user.profile.is_doctor|yesno:"success,primary" }}">
+                            {{ user.profile.is_doctor|yesno:"Doctor,Patient" }}
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-around text-center">
+                        <div>
+                            <h6 class="mb-0">
+                                {{ user.patient_appointments.count|default_if_none:"0" }}
+                            </h6>
+                            <small class="text-muted">Appointments</small>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">
+                                {{ user.medicalrecord_set.count|default_if_none:"0" }}
+                            </h6>
+                            <small class="text-muted">Records</small>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">
+                                {{ user.prescription_set.count|default_if_none:"0" }}
+                            </h6>
+                            <small class="text-muted">Prescriptions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- User Information -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-3">Personal Information</h6>
+                                {{ user_form|crispy }}
+                            </div>
+                            
+                            <!-- Profile Information -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-3">Contact & Medical Information</h6>
+                                {{ profile_form|crispy }}
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if not user.profile.is_doctor %}
+            <!-- Recent Activity -->
+            <div class="row mt-4">
+                <!-- Recent Appointments -->
+                <div class="col-md-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Recent Activity</h5>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            {% if appointments %}
+                                {% for appointment in appointments %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Appointment with Dr. {{ appointment.doctor.user.get_full_name }}</h6>
+                                        <small class="text-muted">{{ appointment.datetime|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ appointment.appointment_type }} - {{ appointment.status }}</p>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="list-group-item text-center text-muted">
+                                    No recent appointments
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 1em;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Bootstrap form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

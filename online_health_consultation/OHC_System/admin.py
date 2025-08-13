@@ -2,10 +2,17 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Q
 from .models import (
     Profile, Doctor, Appointment, MedicalRecord, Prescription, 
     HealthArticle, Question, Answer, Tip, EmergencyContact
 )
+
+class Patient(User):
+    class Meta:
+        proxy = True
+        verbose_name = 'Patient'
+        verbose_name_plural = 'Patients'
 
 # Define inline admin for Profile
 class ProfileInline(admin.StackedInline):
@@ -77,6 +84,44 @@ class HealthArticleAdmin(admin.ModelAdmin):
     def get_excerpt(self, obj):
         return obj.content[:100] + '...' if len(obj.content) > 100 else obj.content
     get_excerpt.short_description = 'Content Preview'
+
+@admin.register(Patient)
+class PatientAdmin(admin.ModelAdmin):
+    list_display = ('username', 'get_full_name', 'email', 'get_phone', 'get_appointments_count', 'date_joined')
+    list_filter = ('profile__blood_group', 'date_joined', 'is_active')
+    search_fields = ('username', 'first_name', 'last_name', 'email', 'profile__phone_number')
+    readonly_fields = ('date_joined', 'last_login')
+    list_per_page = 20
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(profile__is_doctor=False).select_related('profile')
+
+    def get_full_name(self, obj):
+        return obj.get_full_name() or obj.username
+    get_full_name.short_description = 'Full Name'
+
+    def get_phone(self, obj):
+        return obj.profile.phone_number if hasattr(obj, 'profile') else '-'
+    get_phone.short_description = 'Phone Number'
+
+    def get_appointments_count(self, obj):
+        return obj.patient_appointments.count()
+    get_appointments_count.short_description = 'Appointments'
+
+    fieldsets = (
+        ('Personal Information', {
+            'fields': ('username', 'password', 'first_name', 'last_name', 'email')
+        }),
+        ('Medical Information', {
+            'fields': ('profile.blood_group', 'profile.date_of_birth')
+        }),
+        ('Contact Details', {
+            'fields': ('profile.phone_number', 'profile.address', 'profile.emergency_contact')
+        }),
+        ('Account Status', {
+            'fields': ('is_active', 'date_joined', 'last_login')
+        }),
+    )
 
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
