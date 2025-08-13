@@ -24,12 +24,11 @@ from .forms import UserRegistrationForm, ProfileUpdateForm
 from django.contrib import messages
 
 def user_login(request):
-    """Handle user login with role-based redirection."""
     if request.user.is_authenticated:
         if hasattr(request.user, 'profile') and request.user.profile.is_doctor:
             return redirect('doctor_dashboard')
         return redirect('dashboard')
-        
+    
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -38,7 +37,6 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                # Redirect based on user role
                 if hasattr(user, 'profile') and user.profile.is_doctor:
                     messages.success(request, f'Welcome back, Dr. {user.get_full_name() or username}!')
                     next_url = request.GET.get('next', 'doctor_dashboard')
@@ -59,54 +57,49 @@ def register(request):
     """Handle user registration with role selection."""
     if request.user.is_authenticated:
         return redirect('dashboard')
-        
+
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             try:
+                # Create user first
                 user = form.save(commit=False)
-                user.email = form.cleaned_data['email']
+                user.email = form.cleaned_data.get('email')
+                user.first_name = form.cleaned_data.get('first_name')
+                user.last_name = form.cleaned_data.get('last_name')
                 user.save()
-                
-                # Create user profile
-                profile = Profile.objects.create(
-                    user=user,
-                    is_doctor=(form.cleaned_data['user_type'] == 'doctor')
-                )
-                
+
+                # Create or update profile
+                try:
+                    profile = Profile.objects.get(user=user)
+                except Profile.DoesNotExist:
+                    profile = Profile(user=user)
+
+                profile.is_doctor = (form.cleaned_data.get('user_type') == 'doctor')
+                profile.save()
+
                 # If registering as a doctor, create doctor profile
-                if form.cleaned_data['user_type'] == 'doctor':
+                if form.cleaned_data.get('user_type') == 'doctor':
                     Doctor.objects.create(
                         user=user,
-                        specialization=form.cleaned_data['specialization'],
-                        license_number=form.cleaned_data['license_number'],
-                        experience_years=form.cleaned_data['experience_years'],
-                        consultation_fee=form.cleaned_data['consultation_fee'],
+                        specialization=form.cleaned_data.get('specialization'),
+                        license_number=form.cleaned_data.get('license_number'),
+                        experience_years=form.cleaned_data.get('experience_years'),
+                        consultation_fee=form.cleaned_data.get('consultation_fee'),
                         available_from='09:00',  # Default availability
                         available_to='17:00'
                     )
-                
+
                 messages.success(request, 'Your account has been created successfully! You can now log in.')
                 return redirect('login')
             except Exception as e:
                 messages.error(request, f'An error occurred while creating your account: {str(e)}')
-                if user and user.id:  # If user was created but profile/doctor creation failed
+                if 'user' in locals() and user.id:
                     user.delete()  # Rollback user creation
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # Create associated profile
-            profile = user.profile  # Signal will create this
-            profile.save()
-            
-            # Log the user in
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            
-            messages.success(request, f'Account created successfully! Welcome, {username}!')
-            return redirect('dashboard')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = UserRegistrationForm()
     

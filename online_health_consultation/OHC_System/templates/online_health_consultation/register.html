@@ -3,6 +3,33 @@
 
 {% block title %}Register - {{ block.super }}{% endblock %}
 
+{% block extrahead %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function toggleDoctorFields() {
+        const userType = document.querySelector('input[name="user_type"]:checked').value;
+        const doctorFields = document.getElementById('doctorFields');
+        if (doctorFields) {
+            doctorFields.style.display = userType === 'doctor' ? 'block' : 'none';
+            const inputs = doctorFields.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.required = userType === 'doctor';
+            });
+        }
+    }
+
+    // Add event listeners to radio buttons
+    const userTypeInputs = document.querySelectorAll('input[name="user_type"]');
+    userTypeInputs.forEach(input => {
+        input.addEventListener('change', toggleDoctorFields);
+    });
+
+    // Initial toggle based on default selection
+    setTimeout(toggleDoctorFields, 100);
+});
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -21,11 +48,9 @@
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
 
-                        {% if messages %}
+                        {% if form.non_field_errors %}
                         <div class="alert alert-danger">
-                            {% for message in messages %}
-                                {{ message }}
-                            {% endfor %}
+                            {{ form.non_field_errors }}
                         </div>
                         {% endif %}
 
@@ -139,6 +164,75 @@
                             </div>
                         </div>
 
+                        <!-- Doctor Specific Fields -->
+                        <div id="doctorFields" class="doctor-fields">
+                            <!-- Specialization -->
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" 
+                                           id="{{ form.specialization.id_for_label }}" 
+                                           name="specialization" 
+                                           placeholder="Specialization"
+                                           value="{{ form.specialization.value|default:'' }}">
+                                    <label for="{{ form.specialization.id_for_label }}">Specialization</label>
+                                </div>
+                            </div>
+
+                            <!-- License Number -->
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" 
+                                           id="{{ form.license_number.id_for_label }}" 
+                                           name="license_number" 
+                                           placeholder="License Number"
+                                           value="{{ form.license_number.value|default:'' }}">
+                                    <label for="{{ form.license_number.id_for_label }}">License Number</label>
+                                </div>
+                            </div>
+
+                            <!-- Experience Years -->
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" 
+                                           id="{{ form.experience_years.id_for_label }}" 
+                                           name="experience_years" 
+                                           placeholder="Years of Experience"
+                                           value="{{ form.experience_years.value|default:'' }}">
+                                    <label for="{{ form.experience_years.id_for_label }}">Years of Experience</label>
+                                </div>
+                            </div>
+
+                            <!-- Consultation Fee -->
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="number" step="0.01" class="form-control" 
+                                           id="{{ form.consultation_fee.id_for_label }}" 
+                                           name="consultation_fee" 
+                                           placeholder="Consultation Fee"
+                                           value="{{ form.consultation_fee.value|default:'' }}">
+                                    <label for="{{ form.consultation_fee.id_for_label }}">Consultation Fee</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <style>
+                            .doctor-fields {
+                                background-color: #f8f9fa;
+                                padding: 20px;
+                                border-radius: 10px;
+                                margin-bottom: 20px;
+                                border: 1px solid #e9ecef;
+                            }
+                            .doctor-fields .form-control:invalid {
+                                border-color: #dee2e6;
+                                box-shadow: none;
+                            }
+                            .doctor-fields .form-floating > .form-control:focus,
+                            .doctor-fields .form-floating > .form-control:not(:placeholder-shown) {
+                                border-color: #198754;
+                            }
+                        </style>
+
                         <!-- Terms and Conditions -->
                         <div class="mb-4 form-check">
                             <input type="checkbox" class="form-check-input" id="terms" required>
@@ -248,13 +342,57 @@ document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
         form.addEventListener('submit', function (event) {
+            const userType = document.querySelector('input[name="user_type"]:checked').value;
+            const doctorFields = document.getElementById('doctorFields');
+            
+            if (userType === 'doctor') {
+                // Make doctor fields required when doctor type is selected
+                const doctorInputs = doctorFields.querySelectorAll('input');
+                let isValid = true;
+                
+                doctorInputs.forEach(input => {
+                    input.required = true;
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        // Add subtle indication without error styling
+                        input.style.borderColor = '#dee2e6';
+                    }
+                });
+                
+                if (!isValid) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
-            form.classList.add('was-validated');
         }, false);
     });
+
+    // Handle doctor fields visibility
+    const userTypeInputs = document.querySelectorAll('input[name="user_type"]');
+    const doctorFields = document.getElementById('doctorFields');
+    
+    function toggleDoctorFields() {
+        const selectedType = document.querySelector('input[name="user_type"]:checked').value;
+        doctorFields.style.display = selectedType === 'doctor' ? 'block' : 'none';
+        
+        // Toggle required attribute on doctor fields
+        const doctorInputs = doctorFields.querySelectorAll('input');
+        doctorInputs.forEach(input => {
+            input.required = selectedType === 'doctor';
+        });
+    }
+
+    userTypeInputs.forEach(input => {
+        input.addEventListener('change', toggleDoctorFields);
+    });
+
+    // Initial toggle based on default selection
+    toggleDoctorFields();
 
     // Password strength indicator
     const password = document.getElementById('id_password1');
