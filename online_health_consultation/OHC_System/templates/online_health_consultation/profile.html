@@ -5,215 +5,105 @@
 {% block title %}Profile - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4">
     <div class="row">
-        <!-- Profile Card -->
-        <div class="col-lg-4 mb-4">
+        <!-- Left Column - Profile Card -->
+        <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <span class="display-1 text-muted">
-                            <i class="fas fa-user-circle"></i>
-                        </span>
+                        <div class="rounded-circle bg-primary bg-opacity-10 mx-auto" style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user-circle text-primary" style="font-size: 80px;"></i>
+                        </div>
                     </div>
-                    <h4 class="card-title mb-0">{{ user.get_full_name }}</h4>
-                    <p class="text-muted">{{ user.email }}</p>
-                    <p class="mb-0">
-                        <span class="badge bg-{{ user.profile.is_doctor|yesno:"success,primary" }}">
-                            {{ user.profile.is_doctor|yesno:"Doctor,Patient" }}
-                        </span>
-                    </p>
+                    <h3 class="card-title">{{ user.get_full_name }}</h3>
+                    <p class="text-muted mb-3">{{ user.email }}</p>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
                 </div>
-                <div class="card-footer bg-light">
-                    <div class="d-flex justify-content-around text-center">
-                        <div>
-                            <h6 class="mb-0">
-                                {{ user.patient_appointments.count|default_if_none:"0" }}
-                            </h6>
-                            <small class="text-muted">Appointments</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Right Column - Profile Information -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-circle text-primary me-2"></i>
+                            Profile Information
+                        </h4>
+                        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Edit 
+                        </a>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">First Name</label>
+                                <div class="form-control-plaintext">{{ user.first_name }}</div>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-0">
-                                {{ user.medicalrecord_set.count|default_if_none:"0" }}
-                            </h6>
-                            <small class="text-muted">Records</small>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Last Name</label>
+                                <div class="form-control-plaintext">{{ user.last_name }}</div>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-0">
-                                {{ user.prescription_set.count|default_if_none:"0" }}
-                            </h6>
-                            <small class="text-muted">Prescriptions</small>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email Address</label>
+                                <div class="form-control-plaintext">{{ user.email }}</div>
+                            </div>
                         </div>
+                        {% if not user.profile.is_doctor %}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date of Birth</label>
+                                <div class="form-control-plaintext">{{ user.profile.date_of_birth|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Phone Number</label>
+                                <div class="form-control-plaintext">{{ user.profile.phone_number }}</div>
+                            </div>
+                        </div>
+                                   <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Emergency Contact Name</label>
+                                <div class="form-control-plaintext">{{ user.profile.emergency_contact_name }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Emergency ContactNumber</label>
+                                <div class="form-control-plaintext">{{ user.profile.emergency_contact_phone }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Blood Group</label>
+                                <div class="form-control-plaintext">{{ user.profile.blood_group }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Edit Profile Form -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">Edit Profile</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if user.profile.is_doctor %}
-                        <!-- Doctor Profile -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>As a doctor, only basic information can be updated.
-                                </div>
-                            </div>
-                            <!-- Basic Information -->
-                            <div class="col-12">
-                                <h6 class="text-muted mb-3">Basic Information</h6>
-                                <div class="mb-3">
-                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="{{ user_form.first_name.id_for_label }}" name="first_name" value="{{ user_form.first_name.value|default:'' }}" placeholder="Enter your first name">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="{{ user_form.last_name.id_for_label }}" name="last_name" value="{{ user_form.last_name.value|default:'' }}" placeholder="Enter your last name">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="{{ user_form.email.id_for_label }}" name="email" value="{{ user_form.email.value|default:'' }}" placeholder="Enter your email address">
-                                </div>
-                            </div>
-                        </div>
-                        {% else %}
-                        <!-- Patient Profile -->
-                        <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-muted mb-3">Basic Information</h6>
-                                        <div class="mb-3">
-                                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
-                                            <input type="text" class="form-control" id="{{ user_form.first_name.id_for_label }}" name="first_name" value="{{ user_form.first_name.value|default:'' }}" placeholder="Enter your first name">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                                            <input type="text" class="form-control" id="{{ user_form.last_name.id_for_label }}" name="last_name" value="{{ user_form.last_name.value|default:'' }}" placeholder="Enter your last name">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="{{ user_form.email.id_for_label }}" name="email" value="{{ user_form.email.value|default:'' }}" placeholder="Enter your email address">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Medical & Contact Information -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-muted mb-3">Medical & Contact Information</h6>
-                                        {% if profile_form %}
-                                            <div class="mb-3">
-                                                <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
-                                                <input type="date" class="form-control" id="{{ profile_form.date_of_birth.id_for_label }}" name="date_of_birth" value="{{ profile_form.date_of_birth.value|default:'' }}" required placeholder="Select your date of birth">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
-                                                <input type="tel" class="form-control" id="{{ profile_form.phone_number.id_for_label }}" name="phone_number" value="{{ profile_form.phone_number.value|default:'' }}" required placeholder="Enter your phone number (e.g., +1234567890)">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="{{ profile_form.blood_group.id_for_label }}" class="form-label">Blood Group</label>
-                                                <select class="form-select" id="{{ profile_form.blood_group.id_for_label }}" name="blood_group" required>
-                                                    {% for value, text in profile_form.blood_group.field.choices %}
-                                                        <option value="{{ value }}" {% if profile_form.blood_group.value == value %}selected{% endif %}>{{ text }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-
-                                            <h6 class="text-muted mb-3 mt-4">Emergency Contact</h6>
-                                            <div class="mb-3">
-                                                <label for="{{ profile_form.emergency_contact_name.id_for_label }}" class="form-label">Contact Name</label>
-                                                <input type="text" class="form-control" id="{{ profile_form.emergency_contact_name.id_for_label }}" name="emergency_contact_name" value="{{ profile_form.emergency_contact_name.value|default:'' }}" required placeholder="Enter emergency contact's full name">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="{{ profile_form.emergency_contact_phone.id_for_label }}" class="form-label">Contact Phone</label>
-                                                <input type="tel" class="form-control" id="{{ profile_form.emergency_contact_phone.id_for_label }}" name="emergency_contact_phone" value="{{ profile_form.emergency_contact_phone.value|default:'' }}" required placeholder="Enter emergency contact's phone number">
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted">
-                                                <i class="fas fa-info-circle me-2"></i>
-                                                All changes will be saved immediately
-                                            </span>
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fas fa-save me-2"></i>Save Changes
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            {% if not user.profile.is_doctor %}
-            <!-- Recent Activity -->
-            <div class="row mt-4">
-                <!-- Recent Appointments -->
-                <div class="col-md-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Recent Activity</h5>
-                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
-                            </div>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            {% if appointments %}
-                                {% for appointment in appointments %}
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Appointment with Dr. {{ appointment.doctor.user.get_full_name }}</h6>
-                                        <small class="text-muted">{{ appointment.datetime|date:"M d, Y" }}</small>
-                                    </div>
-                                    <p class="mb-1">{{ appointment.appointment_type }} - {{ appointment.status }}</p>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="list-group-item text-center text-muted">
-                                    No recent appointments
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+    </div>
+</div>
         </div>
     </div>
 </div>
 
 <!-- Custom Styles -->
 <style>
-    .form-control:focus {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-    }
     .card {
         border: none;
         border-radius: 0.5rem;
@@ -225,23 +115,8 @@
         font-weight: 500;
         padding: 0.5em 1em;
     }
+    .list-group-item {
+        padding: 1rem;
+    }
 </style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Bootstrap form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
-});
-</script>
 {% endblock %}

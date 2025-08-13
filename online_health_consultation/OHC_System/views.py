@@ -1,8 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
+from django.middleware.csrf import get_token, rotate_token
+from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
+from django import forms
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.middleware.csrf import get_token
+from django.core.exceptions import PermissionDenied
 from .models import (
     Profile, Doctor, Appointment, MedicalRecord, 
     Prescription, HealthArticle
@@ -19,41 +29,87 @@ def home(request):
 
 @login_required
 def profile(request):
-    """Handle user profile view and updates."""
-    if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = None
-        
-        if not request.user.profile.is_doctor:
-            profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
-        
-        if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
-            user_form.save()
-            if profile_form:
-                profile_form.save()
-            messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('profile')
-        else:
-            if user_form.errors:
-                for field, errors in user_form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'{field}: {error}')
-            if profile_form and profile_form.errors:
-                for field, errors in profile_form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'{field}: {error}')
-    else:
-        user_form = UserUpdateForm(instance=request.user)
-        profile_form = None if request.user.profile.is_doctor else ProfileUpdateForm(instance=request.user.profile)
-    
+    """Display user profile information."""
+    user = request.user
     context = {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'appointments': request.user.patient_appointments.order_by('-datetime')[:5] if not request.user.profile.is_doctor else None,
-        'medical_records': MedicalRecord.objects.filter(user=request.user).order_by('-date')[:5] if not request.user.profile.is_doctor else None,
-        'prescriptions': Prescription.objects.filter(user=request.user).order_by('-date')[:5] if not request.user.profile.is_doctor else None,
+        'user': user,
+        'appointments': user.patient_appointments.all()[:5] if hasattr(user, 'patient_appointments') else None
     }
     return render(request, 'online_health_consultation/profile.html', context)
+
+class CombinedProfileForm(forms.Form):
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150)
+    email = forms.EmailField()
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    phone_number = forms.CharField(max_length=15)
+    emergency_contact_name = forms.CharField(max_length=100, required=False)
+    emergency_contact_phone = forms.CharField(max_length=15, required=False)
+    blood_group = forms.ChoiceField(
+        choices=[
+            ('', 'Select Blood Group'),
+            ('A+', 'A+'), ('A-', 'A-'),
+            ('B+', 'B+'), ('B-', 'B-'),
+            ('O+', 'O+'), ('O-', 'O-'),
+            ('AB+', 'AB+'), ('AB-', 'AB-'),
+        ],
+        required=False
+    )
+
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+@login_required
+@ensure_csrf_cookie
+@csrf_protect
+def profile_edit(request):
+    """Handle user profile updates with enhanced CSRF protection."""
+    # Force CSRF cookie to be set
+    get_token(request)
+    
+    if request.method == 'POST':
+        if not request.POST.get('csrfmiddlewaretoken'):
+            raise PermissionDenied('CSRF token missing')
+        if request.user.profile.is_doctor:
+            form = UserUpdateForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Your profile has been updated successfully!')
+                return redirect('profile')
+        else:
+            form = CombinedProfileForm(request.POST)
+            if form.is_valid():
+                request.user.first_name = form.cleaned_data['first_name']
+                request.user.last_name = form.cleaned_data['last_name']
+                request.user.email = form.cleaned_data['email']
+                request.user.save()
+                
+                profile = request.user.profile
+                profile.date_of_birth = form.cleaned_data['date_of_birth']
+                profile.phone_number = form.cleaned_data['phone_number']
+                profile.emergency_contact_name = form.cleaned_data.get('emergency_contact_name', '')
+                profile.emergency_contact_phone = form.cleaned_data.get('emergency_contact_phone', '')
+                profile.blood_group = form.cleaned_data.get('blood_group', '')
+                profile.save()
+                
+                messages.success(request, 'Your profile has been updated successfully!')
+                return redirect('profile')
+    else:
+        if request.user.profile.is_doctor:
+            form = UserUpdateForm(instance=request.user)
+        else:
+            initial_data = {
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'email': request.user.email,
+                'date_of_birth': request.user.profile.date_of_birth,
+                'phone_number': request.user.profile.phone_number,
+                'emergency_contact_name': request.user.profile.emergency_contact_name,
+                'emergency_contact_phone': request.user.profile.emergency_contact_phone,
+                'blood_group': request.user.profile.blood_group,
+            }
+            form = CombinedProfileForm(initial=initial_data)
+                
+    return render(request, 'online_health_consultation/profile_edit.html', {'form': form})
 
 # Authentication Views
 from django.contrib.auth import login, authenticate, logout
@@ -72,13 +128,33 @@ def user_logout(request):
     messages.success(request, 'You have been successfully logged out.')
     return response
 
+from django.views.decorators.csrf import csrf_protect
+
+from django.views.decorators.csrf import requires_csrf_token
+from django.http import HttpResponse
+import logging
+
+logger = logging.getLogger(__name__)
+
+@requires_csrf_token
 def user_login(request):
+    """Handle user login."""
+    # Debug logging
+    logger.info(f'Method: {request.method}')
+    logger.info(f'CSRF Cookie: {request.COOKIES.get("csrftoken")}')
+    if request.method == 'POST':
+        logger.info(f'CSRF Token from POST: {request.POST.get("csrfmiddlewaretoken")}')
+    
     if request.user.is_authenticated:
         if hasattr(request.user, 'profile') and request.user.profile.is_doctor:
             return redirect('doctor_dashboard')
         return redirect('dashboard')
-    
+
+    # Set cookie and token explicitly for both GET and POST
+    token = get_token(request)
+    form = AuthenticationForm()
     if request.method == 'POST':
+            
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
@@ -86,6 +162,8 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                # Rotate CSRF token on successful login
+                rotate_token(request)
                 if hasattr(user, 'profile') and user.profile.is_doctor:
                     messages.success(request, f'Welcome back, Dr. {user.get_full_name() or username}!')
                     next_url = request.GET.get('next', 'doctor_dashboard')
@@ -98,9 +176,21 @@ def user_login(request):
         else:
             messages.error(request, 'Invalid username or password.')
     else:
+        # GET request
         form = AuthenticationForm()
     
-    return render(request, 'online_health_consultation/login.html', {'form': form})
+    response = render(request, 'online_health_consultation/login.html', {'form': form})
+    response.set_cookie(
+        'csrftoken',
+        token,
+        max_age=60 * 60 * 24 * 7,  # 7 days
+        domain=None,
+        path='/',
+        secure=False,
+        httponly=False,
+        samesite='Lax'
+    )
+    return response
 
 def register(request):
     """Handle user registration with role selection."""
