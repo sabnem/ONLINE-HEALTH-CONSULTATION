@@ -5,11 +5,11 @@ from django.utils.text import slugify
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_doctor = models.BooleanField(default=False)
-    phone_number = models.CharField(max_length=20, blank=True)
-    address = models.TextField(blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    blood_group = models.CharField(max_length=5, blank=True)
-    emergency_contact = models.CharField(max_length=20, blank=True)
+    phone_number = models.CharField(max_length=15, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)  # Making it nullable for existing records
+    blood_group = models.CharField(max_length=3, blank=True)
+    emergency_contact_name = models.CharField(max_length=100, null=True, blank=True)  # Making it nullable for existing records
+    emergency_contact_phone = models.CharField(max_length=15, null=True, blank=True)  # Making it nullable for existing records
 
     def __str__(self):
         return f"{self.user.username} - {'Doctor' if self.is_doctor else 'Patient'}"

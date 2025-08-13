@@ -12,6 +12,33 @@ class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
+    date_of_birth = forms.DateField(
+        required=True,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    phone_number = forms.CharField(
+        required=False,
+        max_length=15
+    )
+    BLOOD_GROUP_CHOICES = [
+        ('', 'Select Blood Group'),
+        ('A+', 'A+'), ('A-', 'A-'),
+        ('B+', 'B+'), ('B-', 'B-'),
+        ('O+', 'O+'), ('O-', 'O-'),
+        ('AB+', 'AB+'), ('AB-', 'AB-'),
+    ]
+    blood_group = forms.ChoiceField(
+        choices=BLOOD_GROUP_CHOICES,
+        required=False
+    )
+    emergency_contact_name = forms.CharField(
+        required=True,
+        max_length=100
+    )
+    emergency_contact_phone = forms.CharField(
+        required=True,
+        max_length=15
+    )
     user_type = forms.ChoiceField(
         choices=USER_TYPE_CHOICES,
         widget=forms.RadioSelect(attrs={'class': 'btn-check'}),
@@ -55,6 +82,7 @@ class UserUpdateForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     BLOOD_GROUP_CHOICES = [
+        ('', 'Select Blood Group'),
         ('A+', 'A+'),
         ('A-', 'A-'),
         ('B+', 'B+'),
@@ -66,10 +94,11 @@ class ProfileUpdateForm(forms.ModelForm):
     ]
 
     blood_group = forms.ChoiceField(choices=BLOOD_GROUP_CHOICES, required=False)
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = Profile
-        fields = ['phone_number', 'address', 'date_of_birth', 'blood_group', 'emergency_contact']
+        fields = ['phone_number', 'date_of_birth', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone']
         widgets = {
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',

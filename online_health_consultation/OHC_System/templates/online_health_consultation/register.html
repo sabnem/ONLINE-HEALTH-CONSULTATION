@@ -134,6 +134,90 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                         </div>
 
+                        <!-- Date of Birth -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.date_of_birth.id_for_label }}" 
+                                       name="date_of_birth" 
+                                       required>
+                                <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+                                {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback">{{ form.date_of_birth.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.phone_number.id_for_label }}" 
+                                       name="phone_number" 
+                                       placeholder="Phone Number">
+                                <label for="{{ form.phone_number.id_for_label }}">Phone Number (Optional)</label>
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback">{{ form.phone_number.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Blood Group -->
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <select class="form-select {% if form.blood_group.errors %}is-invalid{% endif %}" 
+                                        id="{{ form.blood_group.id_for_label }}" 
+                                        name="blood_group">
+                                    {% for value, text in form.blood_group.field.choices %}
+                                    <option value="{{ value }}" {% if form.blood_group.value == value %}selected{% endif %}>
+                                        {{ text }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.blood_group.id_for_label }}">Blood Group (Optional)</label>
+                                {% if form.blood_group.errors %}
+                                    <div class="invalid-feedback">{{ form.blood_group.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">Emergency Contact Details</h6>
+                                
+                                <!-- Emergency Contact Name -->
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control {% if form.emergency_contact_name.errors %}is-invalid{% endif %}" 
+                                               id="{{ form.emergency_contact_name.id_for_label }}" 
+                                               name="emergency_contact_name" 
+                                               placeholder="Emergency Contact Name"
+                                               required>
+                                        <label for="{{ form.emergency_contact_name.id_for_label }}">Emergency Contact Name</label>
+                                        {% if form.emergency_contact_name.errors %}
+                                            <div class="invalid-feedback">{{ form.emergency_contact_name.errors|join:", " }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Emergency Contact Phone -->
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control {% if form.emergency_contact_phone.errors %}is-invalid{% endif %}" 
+                                               id="{{ form.emergency_contact_phone.id_for_label }}" 
+                                               name="emergency_contact_phone" 
+                                               placeholder="Emergency Contact Phone"
+                                               required>
+                                        <label for="{{ form.emergency_contact_phone.id_for_label }}">Emergency Contact Phone</label>
+                                        {% if form.emergency_contact_phone.errors %}
+                                            <div class="invalid-feedback">{{ form.emergency_contact_phone.errors|join:", " }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Password -->
                         <div class="mb-3">
                             <div class="form-floating">
