@@ -11,6 +11,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/change-photo/', views.change_profile_photo, name='change_profile_photo'),
+    path('profile/delete-photo/', views.delete_profile_photo, name='delete_profile_photo'),
     
     # Consultation & Appointments
     path('consultation/', views.book_consultation, name='book_consultation'),

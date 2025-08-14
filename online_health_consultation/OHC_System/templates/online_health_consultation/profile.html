@@ -21,7 +21,7 @@
                                 </div>
                             {% endif %}
                             <!-- Edit Photo Button -->
-                            <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 me-4" 
+                            <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-1 me-4" 
                                     style="width: 32px; height: 32px;" data-bs-toggle="modal" data-bs-target="#changePhotoModal">
                                 <i class="fas fa-pen" style="font-size: 12px;"></i>
                             </button>
@@ -29,19 +29,22 @@
                     </div>
 
                     <!-- Change Photo Modal -->
-                    <div class="modal fade" id="changePhotoModal" tabindex="-1" aria-labelledby="changePhotoModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                    <div class="modal fade" id="changePhotoModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="changePhotoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="changePhotoModalLabel">Change Profile Photo</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form method="post" enctype="multipart/form-data" action="{% url 'change_profile_photo' %}">
+                                <form method="post" enctype="multipart/form-data" action="{% url 'change_profile_photo' %}" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label for="profile_picture" class="form-label">Choose a new photo</label>
                                             <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" required>
+                                            <div class="invalid-feedback">
+                                                Please select an image file.
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -52,6 +55,30 @@
                             </div>
                         </div>
                     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the modal
+    var modal = document.getElementById('changePhotoModal');
+    
+    // Reset form when modal is closed
+    modal.addEventListener('hidden.bs.modal', function () {
+        var form = modal.querySelector('form');
+        form.reset();
+        form.classList.remove('was-validated');
+    });
+
+    // Custom form validation
+    var form = modal.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>
                     <h3 class="card-title">{{ user.get_full_name }}</h3>
                     <p class="text-muted mb-3">{{ user.email }}</p>
                     <a href="{% url 'logout' %}" class="btn btn-outline-danger">

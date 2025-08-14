@@ -111,6 +111,14 @@ class ProfileUpdateForm(forms.ModelForm):
         ('O+', 'O+'),
         ('O-', 'O-'),
     ]
+    
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
 
     blood_group = forms.ChoiceField(
         choices=BLOOD_GROUP_CHOICES,

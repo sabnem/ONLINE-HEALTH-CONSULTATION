@@ -38,6 +38,18 @@ def change_profile_photo(request):
     return redirect('profile')
 
 @login_required
+def delete_profile_photo(request):
+    """Handle profile photo deletion."""
+    if request.method == 'POST':
+        profile = request.user.profile
+        if profile.profile_picture:
+            profile.profile_picture.delete()  # Delete the actual file
+            profile.profile_picture = None    # Clear the field
+            profile.save()
+            messages.success(request, 'Profile photo deleted successfully!')
+    return redirect('profile')
+
+@login_required
 def profile(request):
     """Display user profile information."""
     user = request.user
@@ -51,6 +63,13 @@ class CombinedProfileForm(forms.Form):
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
     email = forms.EmailField()
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     phone_number = forms.CharField(max_length=15)
     emergency_contact_name = forms.CharField(max_length=100, required=False)
