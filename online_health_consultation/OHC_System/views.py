@@ -19,13 +19,23 @@ from .models import (
 )
 from .forms import (
     UserRegistrationForm, ProfileUpdateForm, UserUpdateForm,
-    AppointmentForm, MedicalRecordForm, EmergencyContactForm
+    AppointmentForm, MedicalRecordForm, EmergencyContactForm, PrescriptionForm
 )
 
 def home(request):
     """Render the home page of the Online Health Consultation System."""
     articles = HealthArticle.objects.filter(featured=True)[:3]
     return render(request, 'online_health_consultation/home.html', {'featured_articles': articles})
+
+@login_required
+def change_profile_photo(request):
+    """Handle profile photo updates."""
+    if request.method == 'POST' and request.FILES.get('profile_picture'):
+        profile = request.user.profile
+        profile.profile_picture = request.FILES['profile_picture']
+        profile.save()
+        messages.success(request, 'Profile photo updated successfully!')
+    return redirect('profile')
 
 @login_required
 def profile(request):
@@ -70,13 +80,15 @@ def profile_edit(request):
         if not request.POST.get('csrfmiddlewaretoken'):
             raise PermissionDenied('CSRF token missing')
         if request.user.profile.is_doctor:
-            form = UserUpdateForm(request.POST, instance=request.user)
-            if form.is_valid():
+            form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+            profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+            if form.is_valid() and profile_form.is_valid():
                 form.save()
+                profile_form.save()
                 messages.success(request, 'Your profile has been updated successfully!')
                 return redirect('profile')
         else:
-            form = CombinedProfileForm(request.POST)
+            form = CombinedProfileForm(request.POST, request.FILES)
             if form.is_valid():
                 request.user.first_name = form.cleaned_data['first_name']
                 request.user.last_name = form.cleaned_data['last_name']
@@ -84,6 +96,8 @@ def profile_edit(request):
                 request.user.save()
                 
                 profile = request.user.profile
+                if request.FILES.get('profile_picture'):
+                    profile.profile_picture = request.FILES['profile_picture']
                 profile.date_of_birth = form.cleaned_data['date_of_birth']
                 profile.phone_number = form.cleaned_data['phone_number']
                 profile.emergency_contact_name = form.cleaned_data.get('emergency_contact_name', '')
@@ -493,10 +507,28 @@ def doctor_appointments(request):
 def doctor_consultations(request):
     """View doctor's consultations."""
     doctor = request.user.doctor
+    
+    # Get filter parameters
+    date = request.GET.get('date')
+    status = request.GET.get('status')
+    
+    # Base queryset
     consultations = Appointment.objects.filter(
         doctor=doctor,
         appointment_type='Consultation'
     ).order_by('-datetime')
+    
+    # Apply filters
+    if date:
+        try:
+            filter_date = datetime.strptime(date, '%Y-%m-%d').date()
+            consultations = consultations.filter(datetime__date=filter_date)
+        except ValueError:
+            messages.error(request, 'Invalid date format')
+    
+    if status:
+        consultations = consultations.filter(status=status)
+    
     return render(request, 'online_health_consultation/doctor_consultations.html', {'consultations': consultations})
 
 @login_required
@@ -521,9 +553,112 @@ def doctor_patients(request):
 
 @login_required
 @user_passes_test(is_doctor)
+def doctor_availability(request):
+    """Update doctor's availability."""
+    doctor = request.user.doctor
+    if request.method == 'POST':
+        doctor.is_available = request.POST.get('is_available') == 'on'
+        doctor.available_from = request.POST.get('available_from')
+        doctor.available_to = request.POST.get('available_to')
+        
+        try:
+            doctor.consultation_fee = float(request.POST.get('consultation_fee', 0))
+        except ValueError:
+            messages.error(request, 'Invalid consultation fee value')
+            return render(request, 'online_health_consultation/doctor_availability.html', {'doctor': doctor})
+            
+        doctor.save()
+        messages.success(request, 'Availability settings updated successfully.')
+        return redirect('doctor_dashboard')
+    
+    return render(request, 'online_health_consultation/doctor_availability.html', {'doctor': doctor})
+
+@login_required
+@user_passes_test(is_doctor)
 def doctor_prescriptions(request):
     """Write new prescriptions."""
     if request.method == 'POST':
-        # Handle prescription creation
-        pass
-    return render(request, 'online_health_consultation/doctor_prescriptions.html')
+        form = PrescriptionForm(request.POST)
+        if form.is_valid():
+            prescription = form.save(commit=False)
+            prescription.doctor = request.user.doctor
+            prescription.save()
+            messages.success(request, 'Prescription created successfully.')
+            return redirect('doctor_appointments')
+    else:
+        form = PrescriptionForm()
+    return render(request, 'online_health_consultation/doctor_prescriptions.html', {'form': form})
+
+@login_required
+@user_passes_test(is_doctor)
+def complete_appointment(request, appointment_id):
+    """Mark an appointment as completed."""
+    appointment = get_object_or_404(Appointment, id=appointment_id, doctor=request.user.doctor)
+    if appointment.status != 'completed':
+        appointment.status = 'completed'
+        appointment.save()
+        messages.success(request, 'Appointment marked as completed.')
+    return redirect('doctor_appointments')
+
+@login_required
+@user_passes_test(is_doctor)
+def write_prescription(request, appointment_id):
+    """Write a prescription for a completed appointment."""
+    appointment = get_object_or_404(Appointment, id=appointment_id, doctor=request.user.doctor, status='completed')
+    if request.method == 'POST':
+        form = PrescriptionForm(request.POST)
+        if form.is_valid():
+            prescription = form.save(commit=False)
+            prescription.doctor = request.user.doctor
+            prescription.user = appointment.user
+            prescription.appointment = appointment
+            prescription.save()
+            messages.success(request, 'Prescription created successfully.')
+            return redirect('doctor_appointments')
+    else:
+        form = PrescriptionForm(initial={'user': appointment.user})
+    context = {
+        'form': form,
+        'appointment': appointment
+    }
+    return render(request, 'online_health_consultation/doctor_prescriptions.html', context)
+
+def health_articles(request):
+    """Display list of health articles."""
+    # Get query parameters for filtering
+    category = request.GET.get('category')
+    
+    # Query articles
+    articles = HealthArticle.objects.all().order_by('-created_at')
+    if category:
+        articles = articles.filter(category__slug=category)
+        
+    # Get featured articles
+    featured_articles = HealthArticle.objects.filter(featured=True)[:3]
+    
+    # Get popular articles
+    popular_articles = HealthArticle.objects.order_by('-views')[:5]
+    
+    # Get all categories with article count
+    categories = []
+    # You would implement this based on your category model
+    
+    # Prepare context
+    context = {
+        'articles': articles,
+        'featured_articles': featured_articles,
+        'popular_articles': popular_articles,
+        'categories': categories,
+    }
+    
+    return render(request, 'online_health_consultation/articles.html', context)
+
+def article_detail(request, slug):
+    """Display a single article."""
+    article = get_object_or_404(HealthArticle, slug=slug)
+    
+    # Increment view count
+    article.views += 1
+    article.save()
+    
+    return render(request, 'online_health_consultation/article_detail.html', {'article': article})

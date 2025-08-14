@@ -1,0 +1,59 @@
+{% extends "online_health_consultation/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Article Content -->
+            <article>
+                {% if article.image %}
+                <img src="{{ article.image.url }}" class="img-fluid rounded mb-4" alt="{{ article.title }}">
+                {% endif %}
+                
+                <h1 class="mb-4">{{ article.title }}</h1>
+                
+                <div class="mb-4 text-muted">
+                    <small>
+                        Published {{ article.created_at|date:"F j, Y" }}
+                        {% if article.author %}
+                        by {{ article.author.get_full_name|default:article.author.username }}
+                        {% endif %}
+                        • {{ article.views }} views
+                    </small>
+                </div>
+
+                {% if article.category %}
+                <div class="mb-4">
+                    <a href="{% url 'articles' %}?category={{ article.category.slug }}" class="badge bg-secondary text-decoration-none">
+                        {{ article.category.name }}
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="article-content">
+                    {{ article.content|safe }}
+                </div>
+            </article>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Related Articles -->
+            {% if article.get_related_articles %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Related Articles</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for related in article.get_related_articles %}
+                    <a href="{% url 'article_detail' related.slug %}" class="list-group-item list-group-item-action">
+                        {{ related.title }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

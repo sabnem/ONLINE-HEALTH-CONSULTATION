@@ -1,0 +1,50 @@
+{% extends "online_health_consultation/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Manage Availability</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" {% if doctor.is_available %}checked{% endif %}>
+                            <label class="form-check-label" for="is_available">Available for Appointments</label>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="available_from" class="form-label">Available From</label>
+                                <input type="time" class="form-control" id="available_from" name="available_from" value="{{ doctor.available_from|time:'H:i' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="available_to" class="form-label">Available To</label>
+                                <input type="time" class="form-control" id="available_to" name="available_to" value="{{ doctor.available_to|time:'H:i' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="consultation_fee" class="form-label">Consultation Fee</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" value="{{ doctor.consultation_fee }}" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile, Appointment, MedicalRecord, EmergencyContact
+from .models import Profile, Appointment, MedicalRecord, EmergencyContact, Prescription
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
@@ -151,33 +151,52 @@ class ProfileUpdateForm(forms.ModelForm):
         })
     )
 
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
+
     class Meta:
         model = Profile
-        fields = ['date_of_birth', 'phone_number', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone']
+        fields = ['profile_picture', 'date_of_birth', 'phone_number', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone']
 
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
         fields = ['doctor', 'datetime', 'appointment_type']
         widgets = {
+            'doctor': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Select Doctor'
+            }),
             'datetime': forms.DateTimeInput(attrs={
                 'type': 'datetime-local',
-                'class': 'form-control'
+                'class': 'form-control',
+                'placeholder': 'Select Date and Time'
             }),
+            'appointment_type': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Select Appointment Type'
+            })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['doctor'].label_from_instance = lambda obj: obj.get_display_name()
 
     def clean(self):
         cleaned_data = super().clean()
-        date = cleaned_data.get('date')
-        time = cleaned_data.get('time')
+        datetime = cleaned_data.get('datetime')
         doctor = cleaned_data.get('doctor')
 
-        if date and time and doctor:
+        if datetime and doctor:
             # Check if the doctor is available at this time
             existing_appointments = Appointment.objects.filter(
                 doctor=doctor,
-                date=date,
-                time=time,
+                datetime=datetime,
                 status='scheduled'
             )
             if existing_appointments.exists():
@@ -206,3 +225,28 @@ class SearchDoctorForm(forms.Form):
     specialization = forms.CharField(required=False)
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
     time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), required=False)
+
+class PrescriptionForm(forms.ModelForm):
+    class Meta:
+        model = Prescription
+        fields = ['user', 'diagnosis', 'medications', 'instructions', 'is_active']
+        widgets = {
+            'diagnosis': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter the diagnosis'
+            }),
+            'medications': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'List medications and dosages'
+            }),
+            'instructions': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Special instructions or precautions'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }

@@ -10,8 +10,20 @@
                     <h3 class="card-title mb-4">
                         <i class="fas fa-edit text-primary me-2"></i> Edit Profile
                     </h3>
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <div class="mb-4 text-center">
+                            <div class="rounded-circle mx-auto overflow-hidden mb-3" style="width: 120px; height: 120px;">
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-primary bg-opacity-10 w-100 h-100 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user-circle text-primary" style="font-size: 80px;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {{ form.profile_picture|as_crispy_field }}
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.first_name|as_crispy_field }}
