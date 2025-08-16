@@ -442,7 +442,18 @@ def article_detail(request, article_slug):
 # Emergency Services
 def emergency(request):
     """Emergency services information page."""
-    return render(request, 'online_health_consultation/emergency.html')
+    from django.conf import settings
+    
+    # Check if Google Maps API key is configured
+    google_maps_api_key = getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
+    if not google_maps_api_key:
+        messages.warning(request, 'Google Maps API key is not configured. Nearby hospitals feature will not work.')
+    
+    context = {
+        'google_maps_api_key': google_maps_api_key,
+        'debug': settings.DEBUG,  # Pass debug status to template
+    }
+    return render(request, 'online_health_consultation/emergency.html', context)
 
 def emergency_contact(request):
     """Emergency contact form."""

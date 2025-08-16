@@ -11,8 +11,57 @@ body {
     flex-direction: column;
 }
 
+/* Navigation Styles */
 .navbar-custom {
     background-color: var(--dark-green);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+}
+
+/* Emergency Button Styles */
+.nav-link.btn-danger {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    margin-left: 1rem;
+    font-weight: 600;
+}
+
+.nav-link.btn-danger:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(220,53,69,0.2);
+    background-color: #dc3545;
+    color: white !important;
+}
+
+/* Animation for Emergency Button */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.nav-link.btn-danger {
+    animation: pulse 2s infinite;
+}
+
+/* Emergency Page Styles */
+#map {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.hospital-card {
+    transition: transform 0.2s ease;
+    background-color: white;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.hospital-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .navbar-custom .nav-link,
