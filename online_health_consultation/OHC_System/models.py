@@ -198,6 +198,7 @@ class HealthArticle(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     featured = models.BooleanField(default=False)
     image = models.ImageField(upload_to='article_images/', null=True, blank=True)
+    views = models.PositiveIntegerField(default=0)
     
     def save(self, *args, **kwargs):
         if not self.slug:

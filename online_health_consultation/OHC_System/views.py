@@ -250,14 +250,21 @@ def register(request):
                 user_type = form.cleaned_data.get('user_type')
                 profile.is_doctor = (user_type == 'doctor')
                 
-                # Only save patient-specific fields if registering as a patient
+                # Handle profile fields based on user type
                 if user_type == 'patient':
-                    # All these fields are now required for patients
+                    # Set patient-specific fields
                     profile.date_of_birth = form.cleaned_data.get('date_of_birth')
                     profile.phone_number = form.cleaned_data.get('phone_number')
                     profile.blood_group = form.cleaned_data.get('blood_group')
                     profile.emergency_contact_name = form.cleaned_data.get('emergency_contact_name')
                     profile.emergency_contact_phone = form.cleaned_data.get('emergency_contact_phone')
+                else:
+                    # For doctors, set these fields to None/empty
+                    profile.date_of_birth = None
+                    profile.phone_number = ''
+                    profile.blood_group = ''
+                    profile.emergency_contact_name = ''
+                    profile.emergency_contact_phone = ''
                 profile.save()
 
                 # If registering as a doctor, create doctor profile
@@ -602,10 +609,12 @@ def doctor_prescriptions(request):
             prescription = form.save(commit=False)
             prescription.doctor = request.user.doctor
             prescription.save()
-            messages.success(request, 'Prescription created successfully.')
+            messages.success(request, f'Prescription created successfully for {prescription.user.get_full_name() or prescription.user.username}.')
             return redirect('doctor_appointments')
     else:
         form = PrescriptionForm()
+        # This ensures only patients appear in the dropdown
+        form.fields['user'].queryset = User.objects.filter(profile__is_doctor=False).order_by('first_name', 'last_name')
     return render(request, 'online_health_consultation/doctor_prescriptions.html', {'form': form})
 
 @login_required
@@ -632,13 +641,18 @@ def write_prescription(request, appointment_id):
             prescription.user = appointment.user
             prescription.appointment = appointment
             prescription.save()
-            messages.success(request, 'Prescription created successfully.')
+            messages.success(request, f'Prescription created successfully for {prescription.user.get_full_name() or prescription.user.username}.')
             return redirect('doctor_appointments')
     else:
+        # Initialize form with the appointment's patient and disable the field
         form = PrescriptionForm(initial={'user': appointment.user})
+        form.fields['user'].disabled = True  # Make the user field read-only since it's from an appointment
+        form.fields['user'].widget.attrs['class'] = 'form-control disabled'  # Add disabled styling
+    
     context = {
         'form': form,
-        'appointment': appointment
+        'appointment': appointment,
+        'patient_name': appointment.user.get_full_name() or appointment.user.username
     }
     return render(request, 'online_health_consultation/doctor_prescriptions.html', context)
 
@@ -649,6 +663,9 @@ def health_articles(request):
     
     # Query articles
     articles = HealthArticle.objects.all().order_by('-created_at')
+    
+    # Get popular articles
+    popular_articles = HealthArticle.objects.all().order_by('-views')[:5]  # Get top 5 most viewed articles
     if category:
         articles = articles.filter(category__slug=category)
         

@@ -32,11 +32,11 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     date_of_birth = forms.DateField(
-        required=True,
+        required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     phone_number = forms.CharField(
-        required=True,
+        required=False,
         max_length=15
     )
     BLOOD_GROUP_CHOICES = [
@@ -48,14 +48,14 @@ class UserRegistrationForm(UserCreationForm):
     ]
     blood_group = forms.ChoiceField(
         choices=BLOOD_GROUP_CHOICES,
-        required=True
+        required=False
     )
     emergency_contact_name = forms.CharField(
-        required=True,
+        required=False,
         max_length=100
     )
     emergency_contact_phone = forms.CharField(
-        required=True,
+        required=False,
         max_length=15
     )
     user_type = forms.ChoiceField(
@@ -85,7 +85,16 @@ class UserRegistrationForm(UserCreationForm):
             for field in required_fields:
                 value = cleaned_data.get(field)
                 if not value:
-                    self.add_error(field, 'This field is required')
+                    self.add_error(field, 'This field is required for doctors')
+        
+        elif user_type == 'patient':
+            # Make patient fields required when registering as a patient
+            required_fields = ['date_of_birth', 'phone_number', 'blood_group', 
+                             'emergency_contact_name', 'emergency_contact_phone']
+            for field in required_fields:
+                value = cleaned_data.get(field)
+                if not value:
+                    self.add_error(field, 'This field is required for patients')
         
         return cleaned_data
 
@@ -239,6 +248,10 @@ class PrescriptionForm(forms.ModelForm):
         model = Prescription
         fields = ['user', 'diagnosis', 'medications', 'instructions', 'is_active']
         widgets = {
+            'user': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Select Patient'
+            }),
             'diagnosis': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
@@ -258,3 +271,11 @@ class PrescriptionForm(forms.ModelForm):
                 'class': 'form-check-input'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter users to show only patients (non-doctors)
+        patients = User.objects.filter(profile__is_doctor=False).order_by('first_name', 'last_name')
+        self.fields['user'].queryset = patients
+        # Customize how patient names are displayed in the dropdown
+        self.fields['user'].label_from_instance = lambda user: f"{user.get_full_name() or user.username}"
