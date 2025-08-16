@@ -1,0 +1,100 @@
+{% extends 'online_health_consultation/Base.html' %}
+{% load static %}
+
+{% block title %}About Us - Online Health Consultation{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-5">{{ title }}</h1>
+    
+    <div class="row mb-5">
+        <div class="col-lg-6">
+            <h2 class="mb-4">Our Mission</h2>
+            <p class="lead mb-4">To provide accessible, high-quality healthcare through innovative online consultation services.</p>
+            <p class="mb-4">At Online Health Consultation, we believe that quality healthcare should be accessible to everyone, anywhere. Our platform connects patients with qualified healthcare professionals through secure, user-friendly online consultations.</p>
+            <div class="row g-4 mt-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-md fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-1">Expert Doctors</h5>
+                            <p class="mb-0">Qualified and experienced medical professionals</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-1">24/7 Support</h5>
+                            <p class="mb-0">Round-the-clock medical assistance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="position-relative">
+                <img src="{% static 'images/about-mission.jpg' %}" alt="Our Mission" class="img-fluid rounded shadow">
+                <div class="position-absolute bottom-0 end-0 bg-primary text-white p-4 rounded-top">
+                    <h4 class="mb-2">Our Vision</h4>
+                    <p class="mb-0">To revolutionize healthcare delivery through technology</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="text-center mb-4">Our Team</h2>
+    <div class="row">
+        {% for member in team_members %}
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <img src="{% static 'images/team/'|add:member.image %}" alt="{{ member.name }}" class="rounded-circle mb-3" width="150">
+                        <h5 class="card-title">{{ member.name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ member.role }}</h6>
+                    </div>
+                    <p class="card-text">{{ member.description }}</p>
+                    <div class="social-links mt-3">
+                        <a href="#" class="text-primary mx-2"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-primary mx-2"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="bg-light p-4 rounded">
+                <h3 class="text-center mb-4">Why Choose Us?</h3>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-laptop-medical fa-3x text-primary mb-3"></i>
+                            <h5>Easy Online Access</h5>
+                            <p>Connect with doctors from the comfort of your home</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h5>Secure Platform</h5>
+                            <p>Your health data is protected with advanced encryption</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                            <h5>Instant Communication</h5>
+                            <p>Quick responses and follow-ups from medical staff</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -439,6 +439,135 @@ def article_detail(request, article_slug):
     article = get_object_or_404(HealthArticle, slug=article_slug)
     return render(request, 'online_health_consultation/article_detail.html', {'article': article})
 
+# Page Views
+def about_page(request):
+    """About page view."""
+    context = {
+        'title': 'About Us',
+        'team_members': [
+            {
+                'name': 'Dr. John Smith',
+                'role': 'Chief Medical Officer',
+                'description': 'Specialist in Internal Medicine with 15 years of experience.',
+                'image': 'doctor1.jpg'
+            },
+            {
+                'name': 'Dr. Sarah Johnson',
+                'role': 'Lead Cardiologist',
+                'description': 'Expert in cardiovascular health with extensive research background.',
+                'image': 'doctor2.jpg'
+            },
+            {
+                'name': 'Dr. Michael Chen',
+                'role': 'Head of Pediatrics',
+                'description': 'Dedicated to providing exceptional care for children for over a decade.',
+                'image': 'doctor3.jpg'
+            }
+        ]
+    }
+    return render(request, 'online_health_consultation/about.html', context)
+
+def services_page(request):
+    """Services page view."""
+    context = {
+        'title': 'Our Services',
+        'services': [
+            {
+                'name': 'Video Consultation',
+                'description': 'Connect with qualified doctors through secure video calls from the comfort of your home.',
+                'icon': 'fa-video'
+            },
+            {
+                'name': 'Emergency Care',
+                'description': '24/7 emergency support and guidance with quick access to nearby medical facilities.',
+                'icon': 'fa-ambulance'
+            },
+            {
+                'name': 'Medical Records',
+                'description': 'Secure storage and easy access to your complete medical history and test results.',
+                'icon': 'fa-file-medical'
+            },
+            {
+                'name': 'Prescription Management',
+                'description': 'Digital prescriptions and medication reminders to manage your health better.',
+                'icon': 'fa-prescription'
+            },
+            {
+                'name': 'Specialist Referrals',
+                'description': 'Get connected with specialists based on your specific health needs.',
+                'icon': 'fa-user-md'
+            },
+            {
+                'name': 'Health Monitoring',
+                'description': 'Regular health check-ups and continuous monitoring of your conditions.',
+                'icon': 'fa-heart'
+            }
+        ]
+    }
+    return render(request, 'online_health_consultation/services.html', context)
+
+def contact_page(request):
+    """Contact page view."""
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            subject = request.POST.get('subject')
+            message = request.POST.get('message')
+
+            # Send email to admin
+            from django.core.mail import send_mail
+            from django.conf import settings
+            from django.template.loader import render_to_string
+
+            # Prepare email content
+            context = {
+                'name': name,
+                'email': email,
+                'message': message,
+                'subject': subject
+            }
+
+            # Render email templates
+            email_body = render_to_string('online_health_consultation/email/contact_email.html', context)
+            admin_notification = render_to_string('online_health_consultation/email/admin_notification.html', context)
+
+            # Send confirmation email to user
+            send_mail(
+                subject='Thank you for contacting us',
+                message='',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                html_message=email_body,
+                fail_silently=False
+            )
+
+            # Send notification to admin
+            send_mail(
+                subject=f'New Contact Form Submission: {subject}',
+                message='',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.ADMIN_EMAIL],
+                html_message=admin_notification,
+                fail_silently=False
+            )
+
+            messages.success(request, 'Thank you for your message. We will get back to you soon!')
+            return redirect('contact')
+        except Exception as e:
+            messages.error(request, 'Sorry, there was an error sending your message. Please try again later.')
+            print(f"Error sending email: {str(e)}")  # For debugging
+    
+    context = {
+        'title': 'Contact Us',
+        'contact_info': {
+            'address': '123 Healthcare Street, Medical City, MC 12345',
+            'email': 'contact@healthcaresystem.com',
+            'phone': '+1 234 567 8900'
+        }
+    }
+    return render(request, 'online_health_consultation/contact.html', context)
+
 # Emergency Services
 def emergency(request):
     """Emergency services information page."""
