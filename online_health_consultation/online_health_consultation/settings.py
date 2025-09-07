@@ -164,30 +164,30 @@ WSGI_APPLICATION = 'online_health_consultation.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME':'OnlineHealthConsultationDB',
-#         'USER':'postgres',
-#         'PASSWORD':'Joyce@2003',
-#         'HOST':'localhost',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kylianmbappe$OnlineHealthConsultationDB',
-        'USER': 'kylianmbappe',
-        'PASSWORD': 'Joyce@2003',
-        'HOST': 'kylianmbappe.mysql.pythonanywhere-services.com',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':'OnlineHealthConsultationDB',
+        'USER':'postgres',
+        'PASSWORD':'Joyce@2003',
+        'HOST':'localhost',
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'kylianmbappe$OnlineHealthConsultationDB',
+#         'USER': 'kylianmbappe',
+#         'PASSWORD': 'Joyce@2003',
+#         'HOST': 'kylianmbappe.mysql.pythonanywhere-services.com',
+#         'PORT': '3306',
+#     }
+# }
+
 # Authentication settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 
