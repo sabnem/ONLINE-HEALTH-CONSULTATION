@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-1a2(__&^xv^lv3s3j%%)xut1hy4*)#_n968wum^w-#pnd9^neu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'kylianmbappe.pythonanywhere.com').split(',')
 
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
@@ -164,13 +164,24 @@ WSGI_APPLICATION = 'online_health_consultation.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME':'OnlineHealthConsultationDB',
+#         'USER':'postgres',
+#         'PASSWORD':'Joyce@2003',
+#         'HOST':'localhost',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':'OnlineHealthConsultationDB',
-        'USER':'postgres',
-        'PASSWORD':'Joyce@2003',
-        'HOST':'localhost',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kylianmbappe$OnlineHealthConsultationDB',
+        'USER': 'kylianmbappe',
+        'PASSWORD': 'Joyce@2003',
+        'HOST': 'kylianmbappe.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
     }
 }
 
@@ -214,15 +225,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Media files (User uploaded files)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
