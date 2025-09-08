@@ -8,47 +8,65 @@
 <div class="container py-4">
     <div class="row">
         <!-- Left Column - Profile Card -->
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
+        <div class="col-12 col-md-4">
+            <div class="card profile-card shadow-lg border-0">
+                <div class="card-body text-center p-4">
                     <div class="mb-3 position-relative">
-                        <div class="rounded-circle mx-auto overflow-hidden" style="width: 120px; height: 120px;">
-                            {% if user.profile.profile_picture %}
-                                <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                        <div class="rounded-circle mx-auto overflow-hidden profile-pic-gradient shadow"
+                             style="width: 120px; height: 120px; border: 4px solid #fff;">
+                            {% if user.profile.profile_picture and user.profile.profile_picture.url %}
+                                {% if 'default.jpg' not in user.profile.profile_picture.url %}
+                                    <img src="{{ user.profile.profile_picture.url }}"
+                                         alt="{{ user.get_full_name }}'s profile picture"
+                                         class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-primary bg-opacity-10 w-100 h-100 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user-circle text-primary" style="font-size: 80px;"></i>
+                                    </div>
+                                {% endif %}
                             {% else %}
                                 <div class="bg-primary bg-opacity-10 w-100 h-100 d-flex align-items-center justify-content-center">
                                     <i class="fas fa-user-circle text-primary" style="font-size: 80px;"></i>
                                 </div>
                             {% endif %}
                             <!-- Edit Photo Button -->
-                            <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-1 me-4" 
-                                    style="width: 32px; height: 32px;" data-bs-toggle="modal" data-bs-target="#changePhotoModal">
+                            <button type="button"
+                                    class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 me-2 shadow"
+                                    style="width: 32px; height: 32px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#changePhotoModal">
                                 <i class="fas fa-pen" style="font-size: 12px;"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Change Photo Modal -->
-                    <div class="modal fade" id="changePhotoModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="changePhotoModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="changePhotoModal" data-bs-backdrop="static"
+                         tabindex="-1" aria-labelledby="changePhotoModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="changePhotoModalLabel">Change Profile Photo</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                 </div>
-                                <form method="post" enctype="multipart/form-data" action="{% url 'change_profile_photo' %}" class="needs-validation" novalidate>
+                                <form method="post" enctype="multipart/form-data"
+                                      action="{% url 'change_profile_photo' %}"
+                                      class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label for="profile_picture" class="form-label">Choose a new photo</label>
-                                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" required>
+                                            <input type="file" class="form-control" id="profile_picture"
+                                                   name="profile_picture" accept="image/*" required>
                                             <div class="invalid-feedback">
                                                 Please select an image file.
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
                                 </form>
@@ -56,102 +74,108 @@
                         </div>
                     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the modal
-    var modal = document.getElementById('changePhotoModal');
-    
-    // Reset form when modal is closed
-    modal.addEventListener('hidden.bs.modal', function () {
-        var form = modal.querySelector('form');
-        form.reset();
-        form.classList.remove('was-validated');
-    });
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var modal = document.getElementById('changePhotoModal');
+                            modal.addEventListener('hidden.bs.modal', function () {
+                                var form = modal.querySelector('form');
+                                form.reset();
+                                form.classList.remove('was-validated');
+                            });
 
-    // Custom form validation
-    var form = modal.querySelector('form');
-    form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-    }, false);
-});
-</script>
-                    <h3 class="card-title">{{ user.get_full_name }}</h3>
-                    <p class="text-muted mb-3">{{ user.email }}</p>
-                    <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                            var form = modal.querySelector('form');
+                            form.addEventListener('submit', function (event) {
+                                if (!form.checkValidity()) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                form.classList.add('was-validated');
+                            }, false);
+                        });
+                    </script>
+
+                    <h3 class="card-title mt-3 mb-1 fw-bold text-primary">{{ user.get_full_name }}</h3>
+                    <p class="text-muted mb-3"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger w-75 mt-2">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                     </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- Right Column - Profile Information -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
+        <div class="col-12 col-md-8">
+            <div class="card info-card shadow-lg border-0">
+                <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="mb-0">
-                            <i class="fas fa-user-circle text-primary me-2"></i>
-                            Profile Information
+                        <h4 class="mb-0 fw-bold text-secondary">
+                            <i class="fas fa-user-circle text-primary me-2"></i> Profile Information
                         </h4>
-                        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-                            <i class="fas fa-edit me-2"></i>Edit 
+                        <a href="{% url 'profile_edit' %}" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-edit me-2"></i>Edit
                         </a>
                     </div>
 
                     <div class="row g-4">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">First Name</label>
-                                <div class="form-control-plaintext">{{ user.first_name }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-user me-2"></i>First Name</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.first_name }}</div>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Last Name</label>
-                                <div class="form-control-plaintext">{{ user.last_name }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-user me-2"></i>Last Name</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.last_name }}</div>
                             </div>
                         </div>
+
                         <div class="col-12">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Email Address</label>
-                                <div class="form-control-plaintext">{{ user.email }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-envelope me-2"></i>Email Address</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.email }}</div>
                             </div>
                         </div>
+
                         {% if not user.profile.is_doctor %}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Date of Birth</label>
-                                <div class="form-control-plaintext">{{ user.profile.date_of_birth|date:"M d, Y" }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-birthday-cake me-2"></i>Date of Birth</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">
+                                    {{ user.profile.date_of_birth|date:"M d, Y" }}
+                                </div>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Phone Number</label>
-                                <div class="form-control-plaintext">{{ user.profile.phone_number }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-phone me-2"></i>Phone Number</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.profile.phone_number }}</div>
                             </div>
                         </div>
-                                   <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Emergency Contact Name</label>
-                                <div class="form-control-plaintext">{{ user.profile.emergency_contact_name }}</div>
-                            </div>
-                        </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Emergency ContactNumber</label>
-                                <div class="form-control-plaintext">{{ user.profile.emergency_contact_phone }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-user-shield me-2"></i>Emergency Contact Name</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.profile.emergency_contact_name }}</div>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label text-muted">Blood Group</label>
-                                <div class="form-control-plaintext">{{ user.profile.blood_group }}</div>
+                                <label class="form-label text-muted"><i class="fas fa-phone-alt me-2"></i>Emergency Contact Number</label>
+                                <div class="form-control-plaintext fw-semibold text-dark">{{ user.profile.emergency_contact_phone }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted"><i class="fas fa-tint me-2"></i>Blood Group</label>
+                                <span class="badge bg-danger bg-gradient text-light fs-6 px-3 py-2 shadow">
+                                    {{ user.profile.blood_group }}
+                                </span>
                             </div>
                         </div>
                         {% endif %}
@@ -161,25 +185,40 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
-        </div>
-    </div>
-</div>
 
 <!-- Custom Styles -->
 <style>
-    .card {
-        border: none;
-        border-radius: 0.5rem;
+    .profile-card {
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        transition: box-shadow 0.2s;
     }
-    .card-header {
-        border-bottom: 1px solid rgba(0,0,0,.125);
+    .profile-card:hover {
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
+    }
+    .profile-pic-gradient {
+        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    }
+    .info-card {
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        transition: box-shadow 0.2s;
+    }
+    .info-card:hover {
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
     }
     .badge {
-        font-weight: 500;
-        padding: 0.5em 1em;
+        font-weight: 600;
+        padding: 0.5em 1.2em;
+        letter-spacing: 1px;
+        border-radius: 1em;
+        box-shadow: 0 2px 8px rgba(220,53,69,0.12);
     }
-    .list-group-item {
-        padding: 1rem;
+    .form-label {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .form-control-plaintext {
+        font-size: 1.1rem;
+        padding-left: 0;
     }
 </style>
 {% endblock %}
