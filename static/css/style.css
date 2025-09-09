@@ -156,3 +156,60 @@ footer {
         background-color: white;
     }
 }
+
+    /* Card Hover Effects */
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Stats Cards */
+    .bg-success-subtle {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    .bg-info-subtle {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    /* Quick Actions */
+    .btn {
+        padding: 0.75rem 1rem;
+    }
+    .btn-outline-success:hover,
+    .btn-outline-primary:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-info:hover {
+        transform: translateY(-2px);
+    }
+
+    /* User Avatar Styles */
+    .user-avatar-circle {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .user-avatar-circle::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        border-radius: 50%;
+        z-index: 0;
+    }
+    
+    .user-avatar-circle img,
+    .user-avatar-circle div {
+        position: relative;
+        z-index: 1;
+    }

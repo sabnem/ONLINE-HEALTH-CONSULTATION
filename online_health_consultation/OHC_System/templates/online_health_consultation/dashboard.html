@@ -187,13 +187,35 @@
                 <div class="card-body text-center">
                     <div class="position-relative d-inline-block mb-3">
                         <div class="user-avatar-circle" style="width: 100px; height: 100px;">
-                            {% if user.profile.profile_picture %}
-                                <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="rounded-circle img-fluid w-100 h-100" style="object-fit: cover;">
-                            {% else %}
-                                <div class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center w-100 h-100">
-                                    <i class="fas fa-user text-warning fa-3x"></i>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#viewProfilePhotoModal">
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="rounded-circle img-fluid w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center w-100 h-100">
+                                        <i class="fas fa-user text-warning fa-3x"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
+                    <!-- View Profile Photo Modal -->
+                    <div class="modal fade" id="viewProfilePhotoModal" tabindex="-1" aria-labelledby="viewProfilePhotoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewProfilePhotoModalLabel">Profile Photo</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                            {% endif %}
+                                <div class="modal-body text-center">
+                                    {% if user.profile.profile_picture %}
+                                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="rounded img-fluid" style="max-width: 320px; max-height: 320px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center mx-auto" style="width: 160px; height: 160px;">
+                                            <i class="fas fa-user text-warning" style="font-size: 80px;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
 
@@ -266,98 +288,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    /* Timeline Styles */
-    .timeline {
-        position: relative;
-        padding: 1rem 0;
-    }
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 14px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #e9ecef;
-    }
-    .timeline-item {
-        position: relative;
-        padding-left: 40px;
-        margin-bottom: 1rem;
-    }
-    .timeline-marker {
-        position: absolute;
-        left: 10px;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #198754;
-    }
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.5rem;
-    }
-
-    /* Card Hover Effects */
-    .card {
-        transition: transform 0.2s ease-in-out;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* Stats Cards */
-    .bg-success-subtle {
-        background-color: rgba(25, 135, 84, 0.1);
-    }
-    .bg-primary-subtle {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-    .bg-warning-subtle {
-        background-color: rgba(255, 193, 7, 0.1);
-    }
-    .bg-info-subtle {
-        background-color: rgba(13, 202, 240, 0.1);
-    }
-
-    /* Quick Actions */
-    .btn {
-        padding: 0.75rem 1rem;
-    }
-    .btn-outline-success:hover,
-    .btn-outline-primary:hover,
-    .btn-outline-warning:hover,
-    .btn-outline-info:hover {
-        transform: translateY(-2px);
-    }
-
-    /* User Avatar Styles */
-    .user-avatar-circle {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .user-avatar-circle::before {
-        content: '';
-        position: absolute;
-        top: -8px;
-        left: -8px;
-        right: -8px;
-        bottom: -8px;
-        background: radial-gradient(circle at center, #00d9ffff 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 0;
-    }
-    
-    .user-avatar-circle img,
-    .user-avatar-circle div {
-        position: relative;
-        z-index: 1;
-    }
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -115,6 +115,13 @@
                         {% endif %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="align-middle me-2">
+                                    {% if user.profile.profile_picture and user.profile.profile_picture.url and 'default.jpg' not in user.profile.profile_picture.url %}
+                                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; vertical-align: middle;">
+                                    {% else %}
+                                        <i class="fas fa-user-circle text-secondary" style="font-size: 32px; vertical-align: middle;"></i>
+                                    {% endif %}
+                                </span>
                                 {% if user.profile.is_doctor %}Dr. {% endif %}{{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -150,16 +157,22 @@
             {% endfor %}
         </div>
         <script>
-            // Auto-hide messages after 5 seconds
+            // Auto-hide messages after 5 seconds and remove container for layout reset
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     const alerts = document.querySelectorAll('.alert');
                     alerts.forEach(function(alert) {
-                        // Create a Bootstrap alert instance and hide it
                         const bsAlert = new bootstrap.Alert(alert);
                         alert.classList.remove('show');
                         setTimeout(() => bsAlert.dispose(), 300);
                     });
+                    // Remove the message container after all alerts are hidden
+                    setTimeout(function() {
+                        const msgContainer = document.getElementById('message-container');
+                        if (msgContainer) {
+                            msgContainer.remove();
+                        }
+                    }, 600); // Slightly after alerts are disposed
                 }, 5000);
             });
         </script>
