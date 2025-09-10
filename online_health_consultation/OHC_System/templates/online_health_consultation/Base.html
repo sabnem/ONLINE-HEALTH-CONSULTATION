@@ -20,6 +20,12 @@
             text-align: center;
             padding: 1rem;
         }
+        /* Remove underline from navbar links on hover/focus */
+        .navbar-nav .nav-link,
+        .navbar-nav .nav-link:focus,
+        .navbar-nav .nav-link:hover {
+            text-decoration: none !important;
+        }
     </style>
 
     <!-- CSRF Protection -->
@@ -80,7 +86,8 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav me-auto">
+
+                <ul class="navbar-nav me-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
@@ -94,12 +101,12 @@
                         <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-success text-white ms-2" href="{% url 'emergency' %}">
+                        <a class="nav-link" href="{% url 'emergency' %}">
                             <i class="fas fa-ambulance me-1"></i> Emergency
                         </a>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
                     {% if user.is_authenticated %}
                         {% if user.profile.is_doctor %}
                             <li class="nav-item">

@@ -60,6 +60,7 @@ def profile(request):
     return render(request, 'online_health_consultation/profile.html', context)
 
 class CombinedProfileForm(forms.Form):
+    username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
     email = forms.EmailField()
@@ -109,6 +110,7 @@ def profile_edit(request):
         else:
             form = CombinedProfileForm(request.POST, request.FILES)
             if form.is_valid():
+                request.user.username = form.cleaned_data['username']
                 request.user.first_name = form.cleaned_data['first_name']
                 request.user.last_name = form.cleaned_data['last_name']
                 request.user.email = form.cleaned_data['email']
